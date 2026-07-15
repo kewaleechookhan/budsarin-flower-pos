@@ -1,0 +1,69 @@
+.production-auth-badge {
+  position: fixed;
+  right: 16px;
+  bottom: 88px;
+  z-index: 64;
+  touch-action: none;
+  user-select: none;
+}
+
+.production-auth-badge .soft-button {
+  box-shadow: var(--shadow);
+  background: rgba(255,255,255,.94);
+  cursor: grab;
+  white-space: nowrap;
+}
+
+.production-auth-badge.dragging .soft-button {
+  cursor: grabbing;
+  transform: scale(.98);
+}
+
+.production-auth-modal {
+  max-width: 560px;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+
+.production-auth-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.production-auth-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--brown);
+  font-weight: 800;
+}
+
+.production-auth-form input {
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 10px;
+  font: inherit;
+}
+
+.production-auth-form button,
+.production-auth-actions {
+  grid-column: 1 / -1;
+}
+
+.production-auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .production-auth-form {
+    grid-template-columns: 1fr;
+  }
+  .production-auth-badge {
+    right: 10px;
+    bottom: 76px;
+  }
+}
