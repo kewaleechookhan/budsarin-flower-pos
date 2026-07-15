@@ -1,0 +1,64 @@
+.thermal-receipt {
+  width: 80mm;
+  margin: 0 auto;
+  padding: 10px;
+  color: #111;
+  background: #fff;
+  font-family: "Sarabun", system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.thermal-receipt.w58 {
+  width: 58mm;
+  font-size: 11px;
+}
+
+.thermal-receipt h1 {
+  margin: 0 0 4px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.thermal-receipt p {
+  margin: 4px 0;
+  text-align: center;
+}
+
+.thermal-receipt div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.thermal-receipt .total {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.receipt-qr-placeholder {
+  width: 24mm;
+  height: 24mm;
+  display: grid !important;
+  place-items: center;
+  margin: 8px auto;
+  border: 2px solid #111;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body.receipt-58 {
+    width: 58mm;
+  }
+
+  body.receipt-80 {
+    width: 80mm;
+  }
+
+  .thermal-receipt {
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "budsarin-flower-pos-production",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backup": "node backend/scripts/backup-now.js",
+    "reset:production": "node backend/scripts/reset-production.js",
+    "smoke:backend": "node backend/scripts/smoke-test.js",
+    "supabase:status": "node backend/scripts/supabase-status.js",
+    "supabase:push": "node backend/scripts/supabase-push.js",
+    "supabase:pull": "node backend/scripts/supabase-pull.js",
+    "supabase:sync": "node backend/scripts/supabase-sync.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

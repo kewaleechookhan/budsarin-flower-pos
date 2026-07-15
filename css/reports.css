@@ -1,0 +1,344 @@
+.reports-view {
+  display: grid;
+  gap: 12px;
+}
+
+.reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.report-cover {
+  min-height: 180px;
+  display: flex;
+  align-items: end;
+  padding: 22px;
+  border-radius: var(--radius);
+  color: var(--white);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.report-cover h2 {
+  margin: 2px 0;
+  font-size: 32px;
+}
+
+.report-cover span {
+  font-weight: 800;
+}
+
+.reports-header h3 {
+  margin: 2px 0 0;
+  color: var(--deep);
+  font-size: 24px;
+}
+
+.report-print-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.report-print-brand img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+
+.reports-header span,
+.report-filter-bar label,
+.report-kpi small,
+.report-metric span,
+.chart-row span,
+.report-table-row span,
+.muted {
+  color: var(--ink-soft);
+}
+
+.reports-header-actions,
+.report-filter-bar {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.report-filter-bar label {
+  min-width: 130px;
+  display: grid;
+  gap: 5px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.report-filter-bar input,
+.report-filter-bar select {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  background: var(--white);
+  font: inherit;
+}
+
+.report-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.report-tabs button {
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  color: var(--brown);
+  background: rgba(255,249,242,.8);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.report-tabs button.active {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--pink), var(--gold));
+}
+
+.report-kpis,
+.report-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-kpi,
+.report-metric,
+.export-card {
+  min-height: 118px;
+  display: grid;
+  gap: 8px;
+  align-content: space-between;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.8);
+  box-shadow: var(--shadow);
+}
+
+.report-kpi > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  color: var(--gold);
+  background: var(--cream);
+}
+
+.report-kpi strong,
+.report-metric strong,
+.export-card strong,
+.chart-row strong,
+.executive-summary h3 {
+  color: var(--deep);
+}
+
+.executive-summary {
+  margin-top: 12px;
+}
+
+.executive-summary p {
+  margin: 10px 0 0;
+  color: var(--ink);
+  line-height: 1.8;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.report-chart,
+.report-table-card {
+  min-width: 0;
+}
+
+.chart-fallback,
+.report-table {
+  display: grid;
+  gap: 8px;
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(90px, 2fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-row div {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cream);
+}
+
+.chart-row i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--pink), var(--gold));
+}
+
+.report-chart.donut .chart-row i {
+  background: linear-gradient(90deg, var(--gold), var(--pink));
+}
+
+.report-table-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,249,242,.62);
+}
+
+.report-table-row span,
+.chart-row span {
+  overflow-wrap: anywhere;
+}
+
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.export-card {
+  text-align: left;
+  cursor: pointer;
+}
+
+.export-card span {
+  width: max-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--brown);
+  font-weight: 900;
+}
+
+.breakeven-visual {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.progress-ring {
+  width: 180px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--pink) var(--value), var(--cream) 0);
+}
+
+.progress-ring strong {
+  width: 120px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--deep);
+  font-size: 28px;
+}
+
+.report-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--deep);
+  font-weight: 900;
+}
+
+@media print {
+  .sidebar,
+  .topbar,
+  .report-filter-bar,
+  .report-tabs,
+  .reports-header-actions,
+  .mobile-nav {
+    display: none !important;
+  }
+
+  .main {
+    padding: 0;
+  }
+
+  .reports-view {
+    min-height: 297mm;
+    padding: 14mm;
+    background-image: linear-gradient(rgba(255,255,255,.92), rgba(255,255,255,.96)), var(--store-bg-url);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .report-cover {
+    min-height: 72mm;
+    border-radius: 0;
+    break-after: page;
+  }
+
+  .reports-header {
+    border-bottom: 2px solid var(--gold);
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .report-kpis,
+  .report-metric-grid,
+  .export-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .reports-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reports-header-actions,
+  .reports-header-actions .primary-button,
+  .reports-header-actions .soft-button,
+  .report-filter-bar label,
+  .report-filter-bar button {
+    width: 100%;
+  }
+
+  .report-kpis,
+  .report-metric-grid,
+  .export-grid,
+  .report-table-row,
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+}

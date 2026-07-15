@@ -1,0 +1,59 @@
+.calendar-view { display: grid; gap: 12px; }
+.calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.calendar-header h3 { margin: 2px 0 0; color: var(--deep); font-size: 24px; }
+.calendar-header span, .calendar-filter label, .calendar-row span, .compact-event span, .queue-item span, .reminder-row span, .calendar-detail-grid span { color: var(--ink-soft); }
+.calendar-header-actions, .calendar-filter, .calendar-nav, .health-actions { display: flex; align-items: end; gap: 8px; flex-wrap: wrap; }
+.calendar-filter label { min-width: 130px; display: grid; gap: 5px; font-size: 12px; font-weight: 800; }
+.calendar-filter input, .calendar-filter select, .manual-form input, .manual-form textarea, .manual-form select, .calendar-settings-form input, .calendar-settings-form select, .queue-item textarea {
+  min-height: 44px; border: 1px solid var(--line); border-radius: var(--radius); padding: 9px 11px; background: var(--white); font: inherit; color: var(--ink);
+}
+.calendar-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 10px; }
+.calendar-tabs button { min-height: 48px; padding: 0 14px; border-radius: var(--radius); color: var(--brown); background: rgba(255,249,242,.8); font-weight: 900; white-space: nowrap; }
+.calendar-tabs button.active { color: white; background: linear-gradient(135deg, var(--pink), var(--gold)); }
+.calendar-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.calendar-kpi { min-height: 116px; display: grid; gap: 8px; align-content: space-between; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.8); box-shadow: var(--shadow); }
+.calendar-kpi > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: var(--radius); color: var(--pink); background: var(--cream); }
+.calendar-kpi strong, .calendar-row strong, .compact-event strong, .queue-item strong, .reminder-row strong { color: var(--deep); }
+.calendar-grid, .time-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.time-groups { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.calendar-row, .reminder-row, .queue-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.78); border-left: 5px solid var(--pink); }
+.calendar-row.event_project, .compact-event.event_project { border-left-color: var(--gold); }
+.calendar-row.finance_due, .compact-event.finance_due { border-left-color: var(--danger); }
+.calendar-row.inventory_alert, .compact-event.inventory_alert { border-left-color: var(--success); }
+.calendar-row.supplier_po, .compact-event.supplier_po { border-left-color: var(--brown); }
+.calendar-row > div, .queue-item > div, .reminder-row > div { min-width: 0; display: grid; gap: 3px; }
+.timeline-hours { display: grid; gap: 8px; max-height: 560px; overflow: auto; }
+.timeline-hours > div { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 10px; padding: 8px; border-bottom: 1px solid var(--line); }
+.timeline-hours time { color: var(--brown); font-weight: 900; }
+.week-grid { display: grid; grid-template-columns: repeat(7, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; overflow-x: auto; }
+.week-day, .month-day { min-height: 180px; display: grid; align-content: start; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.78); text-align: left; }
+.week-day.today, .month-day.today { outline: 2px solid var(--pink); }
+.week-day h3 { margin: 0; color: var(--deep); font-size: 15px; }
+.compact-event { display: grid; gap: 2px; min-height: 52px; padding: 8px; border: 1px solid var(--line); border-left: 5px solid var(--pink); border-radius: var(--radius); background: var(--white); text-align: left; }
+.month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.month-day { min-height: 128px; cursor: pointer; }
+.month-day.muted { opacity: .48; }
+.month-day span { font-weight: 900; color: var(--deep); }
+.month-day small, .month-day em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-soft); font-style: normal; }
+.queue-list, .manual-form, .calendar-settings-form, .calendar-form-grid { display: grid; gap: 10px; }
+.queue-item { grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: start; }
+.queue-item input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--pink); }
+.queue-item textarea { width: 100%; min-height: 54px; resize: vertical; }
+.reminder-row { grid-template-columns: minmax(0, 1fr) auto auto auto auto; }
+.manual-form label, .calendar-settings-form label { display: grid; gap: 5px; font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+.calendar-toggle { min-height: 48px; display: flex !important; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--cream); }
+.calendar-toggle input { width: 22px; height: 22px; accent-color: var(--pink); }
+.calendar-form-grid, .calendar-detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.calendar-detail-grid { display: grid; gap: 8px; margin: 12px 0; }
+.calendar-detail-grid div { display: grid; gap: 3px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--cream); }
+.calendar-modal .modal-card { width: min(720px, calc(100vw - 28px)); }
+@media (max-width: 1040px) {
+  .calendar-kpis, .calendar-grid, .calendar-form-grid, .calendar-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .time-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .calendar-header { align-items: flex-start; flex-direction: column; }
+  .calendar-header-actions, .calendar-header-actions button, .calendar-filter label, .calendar-filter button { width: 100%; }
+  .calendar-kpis, .calendar-grid, .time-groups, .calendar-row, .queue-item, .reminder-row, .month-grid, .calendar-form-grid, .calendar-detail-grid { grid-template-columns: 1fr; }
+  .month-day { min-height: 96px; }
+}

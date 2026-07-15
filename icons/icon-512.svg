@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#FFF9F2"/>
+  <circle cx="256" cy="282" r="116" fill="#F3D9DE" stroke="#C8A96B" stroke-width="16"/>
+  <path d="M256 78c38 80 118 72 140 140-64 0-76 64-140 64s-76-64-140-64c22-68 102-60 140-140Z" fill="#D8A7B1" stroke="#C8A96B" stroke-width="14"/>
+  <text x="256" y="410" text-anchor="middle" font-size="82" font-family="Georgia,serif" fill="#66534A">BF</text>
+</svg>

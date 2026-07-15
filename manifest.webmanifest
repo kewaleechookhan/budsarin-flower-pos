@@ -1,0 +1,15 @@
+{
+  "name": "Budsarin Flower POS & Studio Manager",
+  "short_name": "Budsarin POS",
+  "description": "Local-first POS and studio manager for Budsarin Flower",
+  "theme_color": "#D8A7B1",
+  "background_color": "#FFF9F2",
+  "display": "standalone",
+  "orientation": "any",
+  "start_url": "./index.html",
+  "scope": "./",
+  "icons": [
+    { "src": "icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

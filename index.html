@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#D8A7B1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Budsarin POS">
+  <title>Budsarin Flower POS & Studio Manager</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20260715a">
+  <link rel="stylesheet" href="css/responsive.css?v=20260715a">
+  <link rel="stylesheet" href="css/pos.css">
+  <link rel="stylesheet" href="css/orders.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/cost-calculator.css">
+  <link rel="stylesheet" href="css/events.css">
+  <link rel="stylesheet" href="css/inventory.css">
+  <link rel="stylesheet" href="css/finance.css">
+  <link rel="stylesheet" href="css/suppliers.css">
+  <link rel="stylesheet" href="css/customers.css">
+  <link rel="stylesheet" href="css/reports.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/calendar.css">
+  <link rel="stylesheet" href="css/pwa.css">
+  <link rel="stylesheet" href="css/production.css">
+  <link rel="stylesheet" href="css/mobile-polish.css?v=20260715a">
+  <link rel="stylesheet" href="css/receipt-print.css">
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" aria-label="เมนูหลัก">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="img"><path d="M32 9c5 10 15 9 18 18-8 0-10 8-18 8s-10-8-18-8c3-9 13-8 18-18Z"/><path d="M32 35c6 0 11 5 11 11S38 57 32 57 21 52 21 46s5-11 11-11Z"/></svg>
+        </div>
+        <div class="brand-copy">
+          <h1>Budsarin Flower</h1>
+          <p>POS & Studio Manager</p>
+        </div>
+      </div>
+
+      <button class="icon-button sidebar-toggle" id="sidebarToggle" aria-label="ย่อหรือขยายเมนู" title="ย่อหรือขยายเมนู" type="button" data-icon="panel-left"></button>
+      <nav class="main-nav" id="mainNav"></nav>
+
+      <div class="sidebar-target">
+        <span>เป้าขายวันนี้</span>
+        <strong>฿0</strong>
+        <div class="bar"><span style="width:0%"></span></div>
+        <small>ทำได้แล้ว 0%</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title">
+          <p class="eyebrow">ระบบบริหารร้านดอกไม้</p>
+          <h2>ภาพรวมร้าน</h2>
+          <p id="dateText">กำลังโหลดวันที่</p>
+        </div>
+        <div class="search-wrap">
+          <span data-icon="search"></span>
+          <input id="globalSearch" type="search" placeholder="ค้นหาออร์เดอร์ ลูกค้า หรือสินค้า" aria-label="ค้นหา">
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="notificationBtn" aria-label="เปิดแจ้งเตือน" title="แจ้งเตือน" type="button" data-icon="bell"></button>
+          <div class="profile" aria-label="โปรไฟล์ผู้ใช้">
+            <span>บ</span>
+            <div><strong>บุศรินทร์</strong><small>Owner</small></div>
+          </div>
+          <div class="dropdown-root">
+            <button class="primary-button" id="quickAddBtn" type="button" aria-expanded="false" aria-haspopup="menu"><span data-icon="plus"></span>เพิ่มรายการ</button>
+            <div class="dropdown-menu" id="quickAddMenu" role="menu"></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="placeholder-page" id="placeholderPage" hidden>
+        <p class="eyebrow" id="placeholderSubtitle">Module</p>
+        <h2 id="placeholderTitle">พร้อมพัฒนาต่อ</h2>
+        <p>โมดูลนี้ถูกเตรียม route และโครงสร้างไว้แล้ว สำหรับ Phase ถัดไป</p>
+        <button class="soft-button js-back-dashboard" type="button"><span data-icon="layout-dashboard"></span>กลับภาพรวม</button>
+      </section>
+
+      <section class="dashboard-view" id="dashboardView">
+        <section class="kpi-grid" id="kpiGrid" aria-label="ตัวชี้วัดหลัก"></section>
+
+        <section class="workbench">
+          <article class="panel sales-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">Sales Chart</p><h3>ยอดขายตามช่วงเวลา</h3></div>
+              <div class="segmented" role="group" aria-label="เลือกช่วงกราฟ">
+                <button class="active" data-period="week" type="button">สัปดาห์</button>
+                <button data-period="month" type="button">เดือน</button>
+              </div>
+            </div>
+            <div class="chart" id="salesChart"></div>
+          </article>
+        </section>
+
+        <section class="detail-grid">
+          <article class="panel schedule-panel">
+            <div class="panel-heading">
+              <div><p class="eyebrow">Today Schedule</p><h3>งานวันนี้</h3></div>
+              <select id="scheduleFilter" aria-label="กรองสถานะงาน"></select>
+            </div>
+            <div class="timeline" id="scheduleList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">Order Status</p><h3>สถานะออร์เดอร์</h3></div></div>
+            <div class="status-grid" id="orderStatus"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">Stock Alerts</p><h3>สต็อกที่ควรรีบใช้</h3></div></div>
+            <div class="stock-list" id="stockList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">Upcoming Events</p><h3>งานจัดสถานที่ที่กำลังจะมาถึง</h3></div></div>
+            <div class="event-list" id="eventList"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">Finance</p><h3>ภาพรวมการเงิน</h3></div></div>
+            <div class="finance-list" id="financeList"></div>
+          </article>
+
+        </section>
+      </section>
+
+      <section class="pos-view" id="posView" hidden aria-label="หน้าขายหน้าร้าน"></section>
+      <section class="orders-view" id="ordersView" hidden aria-label="หน้าออร์เดอร์ลูกค้า"></section>
+      <section class="events-view" id="eventsView" hidden aria-label="หน้างานจัดสถานที่"></section>
+      <section class="products-view" id="productsView" hidden aria-label="หน้าสินค้าและบริการ"></section>
+      <section class="cost-view" id="costView" hidden aria-label="หน้าคำนวณต้นทุน"></section>
+      <section class="inventory-view" id="inventoryView" hidden aria-label="หน้าสต็อกดอกไม้"></section>
+      <section class="finance-view" id="financeView" hidden aria-label="หน้ารายรับรายจ่าย"></section>
+      <section class="suppliers-view" id="suppliersView" hidden aria-label="หน้าซัพพลายเออร์"></section>
+      <section class="customers-view" id="customersView" hidden aria-label="หน้าลูกค้า CRM"></section>
+      <section class="reports-view" id="reportsView" hidden aria-label="หน้ารายงานผู้บริหาร"></section>
+      <section class="settings-view" id="settingsView" hidden aria-label="หน้าตั้งค่าร้าน"></section>
+      <section class="calendar-view" id="calendarView" hidden aria-label="หน้าปฏิทินงานรวม"></section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" id="mobileNav" aria-label="เมนูมือถือ"></nav>
+  <div class="notification-panel" id="notificationPanel" aria-label="รายการแจ้งเตือน" hidden></div>
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="icon-button modal-close" id="modalClose" aria-label="ปิดหน้าต่าง" title="ปิด" type="button" data-icon="x"></button>
+      <p class="eyebrow">Quick Add</p>
+      <h3 id="modalTitle">เพิ่มรายการใหม่</h3>
+      <form id="quickForm" novalidate>
+        <label>ประเภทงาน<select name="type" required></select></label>
+        <label>ชื่อลูกค้า<input name="customer" required minlength="2" placeholder="เช่น คุณมายด์"></label>
+        <label>มูลค่าโดยประมาณ<input name="amount" required min="1" type="number" placeholder="8950"></label>
+        <label>วันที่ส่งมอบ<input name="date" required type="date"></label>
+        <label>หมายเหตุ<textarea name="note" rows="3" placeholder="โทนสี สถานที่ หรือรายละเอียดเพิ่มเติม"></textarea></label>
+        <p class="form-error" id="formError" role="alert"></p>
+        <button class="primary-button" type="submit"><span data-icon="save"></span>บันทึกรายการ</button>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('reset-cache') === '1') {
+        Promise.all([
+          'serviceWorker' in navigator ? navigator.serviceWorker.getRegistrations().then(items => Promise.all(items.map(item => item.unregister()))) : Promise.resolve(),
+          'caches' in window ? caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))) : Promise.resolve()
+        ]).finally(() => {
+          params.delete('reset-cache');
+          params.set('v', '20260715a');
+          window.location.replace(`${window.location.pathname}?${params.toString()}`);
+        });
+        return;
+      }
+      const fallbackUuid = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+      if (window.crypto && !window.crypto.randomUUID) {
+        try {
+          Object.defineProperty(window.crypto, 'randomUUID', { value: fallbackUuid });
+        } catch {
+          window.budsarinRandomUUID = fallbackUuid;
+        }
+      }
+    })();
+  </script>
+  <script type="module" src="js/app.js?v=20260715a"></script>
+</body>
+</html>
