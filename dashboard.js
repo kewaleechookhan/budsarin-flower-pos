@@ -241,6 +241,7 @@ function applyStoreProfileToShell() {
     topbar.style.backgroundImage = profile.coverImageDataUrl
       ? `linear-gradient(90deg, rgba(255,249,242,.96), rgba(255,249,242,.72) 46%, rgba(255,249,242,.24)), url("${profile.coverImageDataUrl}")`
       : '';
+    topbar.dataset.coverReady = profile.coverImageDataUrl ? '1' : '0';
   }
   if (profileName) profileName.textContent = profile.ownerName || profile.storeNameTh;
   if (profileMark) profileMark.innerHTML = profile.logoDataUrl ? `<img src="${profile.logoDataUrl}" alt="">` : (profile.logoPlaceholder || profile.storeNameTh || 'บ').slice(0, 1);
