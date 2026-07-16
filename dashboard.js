@@ -236,7 +236,12 @@ function applyStoreProfileToShell() {
       ? `<img src="${profile.logoDataUrl}" alt="${profile.storeNameTh || 'Store logo'}">`
       : '<svg viewBox="0 0 64 64" role="img"><path d="M32 9c5 10 15 9 18 18-8 0-10 8-18 8s-10-8-18-8c3-9 13-8 18-18Z"/><path d="M32 35c6 0 11 5 11 11S38 57 32 57 21 52 21 46s5-11 11-11Z"/></svg>';
   }
-  if (topbar) topbar.classList.toggle('has-store-cover', Boolean(profile.coverImageDataUrl));
+  if (topbar) {
+    topbar.classList.toggle('has-store-cover', Boolean(profile.coverImageDataUrl));
+    topbar.style.backgroundImage = profile.coverImageDataUrl
+      ? `linear-gradient(90deg, rgba(255,249,242,.96), rgba(255,249,242,.72) 46%, rgba(255,249,242,.24)), url("${profile.coverImageDataUrl}")`
+      : '';
+  }
   if (profileName) profileName.textContent = profile.ownerName || profile.storeNameTh;
   if (profileMark) profileMark.innerHTML = profile.logoDataUrl ? `<img src="${profile.logoDataUrl}" alt="">` : (profile.logoPlaceholder || profile.storeNameTh || 'บ').slice(0, 1);
 }

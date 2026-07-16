@@ -236,7 +236,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   border-radius: var(--radius);
   background:
     linear-gradient(100deg, rgba(255,249,242,.95), rgba(255,255,255,.72)),
-    linear-gradient(135deg, rgba(243,217,222,.8), rgba(200,169,107,.18));
+    linear-gradient(135deg, rgba(243,217,222,.82), rgba(200,169,107,.22)),
+    radial-gradient(circle at 82% 24%, rgba(216,167,177,.38), transparent 32%);
+  background-size: cover;
+  background-position: center;
   box-shadow: var(--shadow-card);
 }
 
@@ -268,6 +271,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   align-items: end;
   border-color: rgba(200,169,107,.35);
   --store-cover-opacity: 1;
+  background-size: cover;
+  background-position: center;
 }
 
 .topbar.has-store-cover .page-title h2,

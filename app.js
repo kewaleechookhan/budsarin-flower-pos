@@ -1,7 +1,7 @@
 import { mockData } from './mock-data.js';
 import { loadState } from './storage.js';
 import { ensureProductionReady } from './demo-data.js?v=20260713b';
-import { initDashboard } from './dashboard.js?v=20260716b';
+import { initDashboard } from './dashboard.js?v=20260716c';
 import { initPos } from './pos.js';
 import { initOrders } from './orders.js';
 import { initEvents } from './events.js';
