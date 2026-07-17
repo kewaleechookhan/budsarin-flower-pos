@@ -89,6 +89,7 @@
 
   .topbar {
     grid-template-columns: 1fr;
+    background-clip: padding-box;
   }
 
   .top-actions {

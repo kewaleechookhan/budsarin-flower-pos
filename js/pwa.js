@@ -4,7 +4,7 @@ import { openPaymentQRModal } from './qr-payment.js';
 import { generateEntityQRCode, showQRPreview } from './qr-service.js';
 import { openScanner } from './scanner.js';
 import { printTestReceipt } from './receipt-printer.js';
-import { initSyncStatus, renderSyncStatus } from './sync-status.js';
+import { initSyncStatus, renderSyncStatus } from './sync-status.js?v=20260717b';
 import { showToast } from './utils.js';
 
 let installPrompt = null;

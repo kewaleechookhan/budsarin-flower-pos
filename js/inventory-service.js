@@ -39,6 +39,14 @@ export function saveInventoryItem(data) {
   return item;
 }
 
+export function deleteInventoryItem(id) {
+  const rows = loadInventoryItems();
+  const next = rows.filter(row => row.id !== id);
+  if (next.length === rows.length) throw new Error('ไม่พบรายการสต็อก');
+  saveInventoryItems(next);
+  return next;
+}
+
 export function receiveStock(data, syncExpense = false) {
   const rows = loadInventoryItems();
   const item = data.itemId ? rows.find(row => row.id === data.itemId) : null;

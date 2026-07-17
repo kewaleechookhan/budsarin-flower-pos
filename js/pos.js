@@ -129,7 +129,7 @@ function renderProducts() {
   });
   document.getElementById('productGrid').innerHTML = visible.map(product => `
     <button class="product-card" data-product-id="${product.id}" type="button">
-      <span class="product-image" aria-hidden="true">${renderIcon('flower')}</span>
+      <span class="product-image" aria-hidden="true">${product.imageDataUrl ? `<img src="${product.imageDataUrl}" alt="">` : renderIcon('flower')}</span>
       <span class="badge gold">${product.category}</span>
       <strong>${product.name}</strong>
       <span class="product-meta"><b>${currency(product.price)}</b><small>${product.status}</small></span>

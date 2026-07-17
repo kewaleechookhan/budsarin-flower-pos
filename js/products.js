@@ -35,11 +35,13 @@ function renderProductsShell() {
         <h3 id="productEditorTitle">เพิ่มสินค้า</h3>
         <form id="productEditorForm" class="product-editor-form">
           <input type="hidden" name="id">
+          <input type="hidden" name="imageDataUrl">
           <label>ชื่อสินค้า<input name="name" required></label>
           <label>หมวด<select name="category">${productCategories.filter(item => item !== 'ทั้งหมด').map(category => `<option value="${category}">${category}</option>`).join('')}</select></label>
           <label>ราคาขาย<input name="price" type="number" min="1" required></label>
           <label>ต้นทุน<input name="cost" type="number" min="0"></label>
           <label>สถานะ<select name="status"><option>พร้อมขาย</option><option>ใกล้หมด</option><option>หยุดขาย</option><option>สั่งทำ</option></select></label>
+          <label class="full product-image-upload">รูปภาพสินค้าตัวอย่าง<input name="productImageFile" type="file" accept="image/*"><span>รูปนี้จะแสดงที่หน้าขายหน้าร้านและสินค้า</span><div class="product-image-preview" id="productImagePreview"></div></label>
           <label class="product-check"><input name="stockTracking" type="checkbox" checked><span>ตัดสต็อก</span></label>
           <div class="products-actions full"><button class="primary-button" type="submit">${renderIcon('save')}บันทึกสินค้า</button><button class="soft-button" data-close-product-editor type="button">ยกเลิก</button></div>
         </form>
@@ -61,7 +63,7 @@ function renderProducts() {
 
 function productCard(product) {
   return `<article class="product-catalog-card panel">
-    <div class="product-art">${renderIcon('flower')}</div>
+    <div class="product-art">${productImage(product)}</div>
     <div><p class="eyebrow">${product.category}</p><h3>${product.name}</h3><span>${product.status} • ${product.stockTracking ? 'ตัดสต็อก' : 'ไม่ตัดสต็อก'}</span></div>
     <div class="product-price"><strong>${currency(product.price)}</strong><small>ต้นทุน ${currency(product.cost)}</small></div>
     <div class="products-actions">
@@ -79,6 +81,9 @@ function bindProductEvents() {
       state.query = event.target.value;
       renderProducts();
     }
+  });
+  document.getElementById('productEditorForm').addEventListener('change', event => {
+    if (event.target.name === 'productImageFile') readProductImage(event.target.files?.[0]);
   });
   document.getElementById('productsView').addEventListener('click', event => {
     const category = event.target.closest('[data-product-category]')?.dataset.productCategory;
@@ -140,7 +145,9 @@ function openProductEditor(product = {}) {
   form.elements.price.value = product.price || '';
   form.elements.cost.value = product.cost || '';
   form.elements.status.value = product.status || 'พร้อมขาย';
+  form.elements.imageDataUrl.value = product.imageDataUrl || '';
   form.elements.stockTracking.checked = product.stockTracking !== false;
+  renderProductImagePreview(product.imageDataUrl || '');
   modal.hidden = false;
   form.elements.name.focus();
 }
@@ -148,4 +155,29 @@ function openProductEditor(product = {}) {
 function closeProductEditor() {
   document.getElementById('productEditorModal').hidden = true;
   document.getElementById('productEditorForm').reset();
+  renderProductImagePreview('');
+}
+
+function readProductImage(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return showToast('กรุณาเลือกไฟล์รูปภาพ');
+  if (file.size > 1200 * 1024) return showToast('รูปภาพควรมีขนาดไม่เกิน 1.2MB เพื่อให้ iPad โหลดเร็ว');
+  const reader = new FileReader();
+  reader.onload = () => {
+    const value = String(reader.result || '');
+    const form = document.getElementById('productEditorForm');
+    form.elements.imageDataUrl.value = value;
+    renderProductImagePreview(value);
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderProductImagePreview(src) {
+  const preview = document.getElementById('productImagePreview');
+  if (!preview) return;
+  preview.innerHTML = src ? `<img src="${src}" alt="ตัวอย่างสินค้า">` : `<span>${renderIcon('image')}ยังไม่ได้เลือกรูป</span>`;
+}
+
+function productImage(product) {
+  return product.imageDataUrl ? `<img src="${product.imageDataUrl}" alt="${product.name}">` : renderIcon('flower');
 }

@@ -3,7 +3,7 @@ import { renderIcon, hydrateIcons } from './icons.js';
 import { currency, daysLeftThisMonth, number, showToast, thaiDate } from './utils.js';
 import { getBreakEvenProgress } from './calculations.js';
 import { loadState, saveState } from './storage.js';
-import { loadStoreProfile } from './settings-service.js';
+import { applyBrandSettings, loadStoreProfile } from './settings-service.js';
 import { getDashboardSchedule } from './calendar-service.js';
 
 export function initDashboard(state) {
@@ -221,10 +221,12 @@ function setRoute(ui, route) {
 }
 
 function applyStoreProfileToShell() {
+  applyBrandSettings();
   const profile = loadStoreProfile();
   const brandTitle = document.querySelector('.brand-copy h1');
   const brandSub = document.querySelector('.brand-copy p');
   const brandMark = document.querySelector('.brand-mark');
+  const topbar = document.querySelector('.topbar');
   const profileName = document.querySelector('.profile strong');
   const profileMark = document.querySelector('.profile span');
   if (brandTitle) brandTitle.textContent = profile.storeNameEn || 'Budsarin Flower';
@@ -233,6 +235,13 @@ function applyStoreProfileToShell() {
     brandMark.innerHTML = profile.logoDataUrl
       ? `<img src="${profile.logoDataUrl}" alt="${profile.storeNameTh || 'Store logo'}">`
       : '<svg viewBox="0 0 64 64" role="img"><path d="M32 9c5 10 15 9 18 18-8 0-10 8-18 8s-10-8-18-8c3-9 13-8 18-18Z"/><path d="M32 35c6 0 11 5 11 11S38 57 32 57 21 52 21 46s5-11 11-11Z"/></svg>';
+  }
+  if (topbar) {
+    topbar.classList.toggle('has-store-cover', Boolean(profile.coverImageDataUrl));
+    topbar.style.backgroundImage = profile.coverImageDataUrl
+      ? `linear-gradient(90deg, rgba(255,249,242,.96), rgba(255,249,242,.72) 46%, rgba(255,249,242,.24)), url("${profile.coverImageDataUrl}")`
+      : '';
+    topbar.dataset.coverReady = profile.coverImageDataUrl ? '1' : '0';
   }
   if (profileName) profileName.textContent = profile.ownerName || profile.storeNameTh;
   if (profileMark) profileMark.innerHTML = profile.logoDataUrl ? `<img src="${profile.logoDataUrl}" alt="">` : (profile.logoPlaceholder || profile.storeNameTh || 'บ').slice(0, 1);

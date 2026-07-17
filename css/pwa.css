@@ -2,7 +2,8 @@
 .install-banner {
   position: fixed;
   left: 50%;
-  top: 10px;
+  top: auto;
+  bottom: 16px;
   z-index: 70;
   width: min(760px, calc(100vw - 24px));
   display: flex;
@@ -18,7 +19,7 @@
 }
 
 .offline-banner.online {
-  opacity: .92;
+  display: none;
 }
 
 .offline-banner.offline {
@@ -32,10 +33,8 @@
   font-weight: 800;
 }
 
-.install-banner {
-  top: auto;
-  bottom: 18px;
-}
+.offline-banner { bottom: 16px; }
+.install-banner { bottom: 82px; }
 
 .install-banner > div {
   min-width: 0;

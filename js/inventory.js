@@ -1,6 +1,6 @@
 import { calculateItemValue, calculateReorderQuantity } from './inventory-calculations.js';
 import { inventoryCategories, movementTypes, qualityStatuses, referenceTypes, wasteReasons } from './inventory-data.js';
-import { adjustStock, deductStock, getInventoryAlerts, getInventoryKpis, loadInventoryItems, loadInventorySettings, receiveStock, recordWaste, saveInventoryItem, saveInventorySettings } from './inventory-service.js?v=20260713b';
+import { adjustStock, deductStock, deleteInventoryItem, getInventoryAlerts, getInventoryKpis, loadInventoryItems, loadInventorySettings, receiveStock, recordWaste, saveInventoryItem, saveInventorySettings } from './inventory-service.js?v=20260717a';
 import { loadStockMovements } from './stock-movements.js?v=20260713b';
 import { renderIcon } from './icons.js?v=20260713b';
 import { loadSuppliers } from './suppliers-service.js';
@@ -149,11 +149,13 @@ function bindInventoryEvents() {
   document.getElementById('inventoryView').addEventListener('click', event => {
     const tab = event.target.closest('[data-inventory-tab], [data-inventory-tab-shortcut]')?.dataset.inventoryTab || event.target.closest('[data-inventory-tab-shortcut]')?.dataset.inventoryTabShortcut;
     const edit = event.target.closest('[data-edit-inventory]')?.dataset.editInventory;
+    const remove = event.target.closest('[data-delete-inventory]')?.dataset.deleteInventory;
     const stockOut = event.target.closest('[data-quick-stock-out]')?.dataset.quickStockOut;
     const waste = event.target.closest('[data-quick-waste]')?.dataset.quickWaste;
     const adjust = event.target.closest('[data-adjust-stock]')?.dataset.adjustStock;
     if (tab) { state.tab = tab; renderInventory(); }
     if (edit) loadItemIntoForm(edit);
+    if (remove) removeInventoryItem(remove);
     if (stockOut) { state.tab = 'stock-out'; renderInventory(); setValue('stockOutItemId', stockOut); }
     if (waste) { state.tab = 'waste'; renderInventory(); setValue('wasteItemId', waste); }
     if (adjust) quickAdjust(adjust);
@@ -212,6 +214,19 @@ function itemForm(item = {}) {
     <label class="full">หมายเหตุ<textarea name="note">${escapeHtml(item.note || '')}</textarea></label>
     <button class="primary-button" type="submit">${renderIcon('save')}บันทึกรายการ</button>
   </form>`;
+}
+
+function removeInventoryItem(id) {
+  const item = loadInventoryItems().find(row => row.id === id);
+  if (!item) return showToast('ไม่พบรายการสต็อก');
+  if (!confirm(`ลบรายการสต็อก "${item.itemName}" หรือไม่?`)) return;
+  try {
+    deleteInventoryItem(id);
+    showToast('ลบรายการสต็อกแล้ว');
+    renderInventory();
+  } catch (error) {
+    showToast(error.message);
+  }
 }
 
 function stockInForm() {
@@ -273,7 +288,7 @@ function itemTableRow(item) {
     <div>${item.supplierName || '-'}<small>${item.storageLocation || '-'}</small></div>
     <div>${item.useByDate ? thaiDate(item.useByDate) : '-'}<small>${item.expiryDate ? `หมดอายุ ${thaiDate(item.expiryDate)}` : ''}</small></div>
     <div>${qualityBadge(item.qualityStatus)}</div>
-    <div class="inventory-row-actions"><button class="soft-button" data-edit-inventory="${item.id}" type="button">แก้ไข</button><button class="soft-button" data-quick-stock-out="${item.id}" type="button">ตัด</button><button class="danger-button" data-quick-waste="${item.id}" type="button">Waste</button></div>
+    <div class="inventory-row-actions"><button class="soft-button" data-edit-inventory="${item.id}" type="button">แก้ไข</button><button class="soft-button" data-quick-stock-out="${item.id}" type="button">ตัด</button><button class="danger-button" data-quick-waste="${item.id}" type="button">Waste</button><button class="danger-button" data-delete-inventory="${item.id}" type="button">ลบ</button></div>
   </div>`;
 }
 

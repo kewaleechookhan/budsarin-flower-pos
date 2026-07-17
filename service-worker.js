@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'budsarin-pwa-v26-20260716-ui-fixes';
+const CACHE_VERSION = 'budsarin-pwa-v28-20260717b-pos-events-cover';
 const APP_SHELL = [
   './',
   './index.html',

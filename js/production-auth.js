@@ -5,6 +5,7 @@ import { loadUsers } from './settings-service.js';
 import { showToast } from './utils.js';
 
 const state = { mode: 'local', user: null };
+const BADGE_POSITION_KEY = 'budsarin_auth_badge_position';
 
 export function initProductionAuth() {
   renderAuthShell();
@@ -67,7 +68,14 @@ function renderAuthShell() {
 }
 
 function bindAuthEvents() {
-  document.getElementById('openProductionAuth').addEventListener('click', () => document.getElementById('productionAuthPanel').hidden = false);
+  enableDraggableAuthBadge();
+  document.getElementById('openProductionAuth').addEventListener('click', event => {
+    if (event.currentTarget.dataset.dragged === '1') {
+      event.currentTarget.dataset.dragged = '0';
+      return;
+    }
+    document.getElementById('productionAuthPanel').hidden = false;
+  });
   document.body.addEventListener('click', async event => {
     if (event.target.closest('[data-close-production-auth]') || event.target.id === 'productionAuthPanel') document.getElementById('productionAuthPanel').hidden = true;
     if (event.target.closest('[data-backend-health]')) {
@@ -125,5 +133,86 @@ function decoratePermissionButtons() {
 
 function updateBadge(mode, name) {
   const btn = document.getElementById('openProductionAuth');
-  if (btn) btn.textContent = `${mode} • ${name || '-'}`;
+  if (btn) {
+    btn.textContent = 'บัญชี';
+    btn.title = `${mode} • ${name || '-'}`;
+    btn.setAttribute('aria-label', `${mode} • ${name || '-'}`);
+  }
+}
+
+function enableDraggableAuthBadge() {
+  const badge = document.getElementById('productionAuthBadge');
+  const button = document.getElementById('openProductionAuth');
+  if (!badge || !button || badge.dataset.draggableReady === '1') return;
+  badge.dataset.draggableReady = '1';
+  applySavedBadgePosition(badge);
+
+  let startX = 0;
+  let startY = 0;
+  let baseLeft = 0;
+  let baseTop = 0;
+  let dragging = false;
+
+  const move = event => {
+    if (!dragging) return;
+    const point = event.touches?.[0] || event;
+    const nextLeft = clamp(baseLeft + point.clientX - startX, 8, window.innerWidth - badge.offsetWidth - 8);
+    const nextTop = clamp(baseTop + point.clientY - startY, 8, window.innerHeight - badge.offsetHeight - 8);
+    badge.style.left = `${nextLeft}px`;
+    badge.style.top = `${nextTop}px`;
+    badge.style.right = 'auto';
+    badge.style.bottom = 'auto';
+    if (Math.abs(point.clientX - startX) + Math.abs(point.clientY - startY) > 8) button.dataset.dragged = '1';
+  };
+
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    badge.classList.remove('dragging');
+    localStorage.setItem(BADGE_POSITION_KEY, JSON.stringify({
+      left: badge.offsetLeft,
+      top: badge.offsetTop
+    }));
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', end);
+    window.removeEventListener('touchmove', move);
+    window.removeEventListener('touchend', end);
+  };
+
+  const start = event => {
+    const point = event.touches?.[0] || event;
+    startX = point.clientX;
+    startY = point.clientY;
+    const rect = badge.getBoundingClientRect();
+    baseLeft = rect.left;
+    baseTop = rect.top;
+    dragging = true;
+    button.dataset.dragged = '0';
+    badge.classList.add('dragging');
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('touchend', end);
+  };
+
+  badge.addEventListener('pointerdown', start);
+  badge.addEventListener('touchstart', start, { passive: true });
+  window.addEventListener('resize', () => applySavedBadgePosition(badge));
+}
+
+function applySavedBadgePosition(badge) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(BADGE_POSITION_KEY) || 'null');
+    if (!saved) return;
+    badge.style.left = `${clamp(Number(saved.left) || 16, 8, window.innerWidth - badge.offsetWidth - 8)}px`;
+    badge.style.top = `${clamp(Number(saved.top) || 16, 8, window.innerHeight - badge.offsetHeight - 8)}px`;
+    badge.style.right = 'auto';
+    badge.style.bottom = 'auto';
+  } catch {
+    localStorage.removeItem(BADGE_POSITION_KEY);
+  }
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), Math.max(min, max));
 }

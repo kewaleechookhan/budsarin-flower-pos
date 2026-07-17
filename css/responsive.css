@@ -66,6 +66,7 @@
 
   .topbar {
     grid-template-columns: minmax(220px, 1fr) minmax(220px, 310px);
+    min-height: 150px;
   }
 
   .top-actions {
@@ -139,6 +140,7 @@
 
   .topbar {
     grid-template-columns: 1fr;
+    min-height: 150px;
   }
 
   .search-wrap {
@@ -200,6 +202,8 @@
 
   .topbar {
     grid-template-columns: 1fr;
+    min-height: 138px;
+    padding: 14px;
   }
 
   .top-actions {

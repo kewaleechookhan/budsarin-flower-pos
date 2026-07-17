@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budsarin GitHub Pages Check</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; line-height: 1.6; background: #fff8f2; color: #3f2a2d; }
+    code { background: #fff; border: 1px solid #eadbd2; padding: 2px 6px; border-radius: 6px; }
+    .ok { color: #16794c; font-weight: 700; }
+    .bad { color: #b42318; font-weight: 700; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>Budsarin GitHub Pages Check</h1>
+  <p>หน้านี้ใช้ตรวจว่า GitHub Pages โหลดไฟล์โปรแกรมครบหรือไม่</p>
+  <ul id="results"></ul>
+  <p>ถ้ารายการใดขึ้น FAIL ให้กลับไปเช็คว่าอัปโหลดโฟลเดอร์ <code>css/</code>, <code>js/</code>, <code>icons/</code> ไว้ที่ root ของ repo แล้วหรือยัง</p>
+  <script>
+    const files = [
+      'index.html',
+      'css/styles.css',
+      'css/responsive.css',
+      'js/app.js',
+      'js/dashboard.js',
+      'js/settings.js',
+      'icons/icon-192.svg',
+      'manifest.webmanifest',
+      'service-worker.js'
+    ];
+    const list = document.getElementById('results');
+    Promise.all(files.map(async file => {
+      try {
+        const response = await fetch(file, { cache: 'no-store' });
+        const item = document.createElement('li');
+        item.innerHTML = `<code>${file}</code> ${response.ok ? '<span class="ok">OK</span>' : `<span class="bad">FAIL ${response.status}</span>`}`;
+        list.appendChild(item);
+      } catch (error) {
+        const item = document.createElement('li');
+        item.innerHTML = `<code>${file}</code> <span class="bad">FAIL</span> ${error.message}`;
+        list.appendChild(item);
+      }
+    }));
+  </script>
+</body>
+</html>

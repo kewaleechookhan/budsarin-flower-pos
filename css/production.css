@@ -1,17 +1,39 @@
 .production-auth-badge {
   position: fixed;
-  right: 16px;
-  bottom: 88px;
-  z-index: 70;
+  right: 12px;
+  bottom: 78px;
+  z-index: 42;
+  touch-action: none;
+  user-select: none;
 }
 
 .production-auth-badge .soft-button {
   box-shadow: var(--shadow);
-  background: rgba(255,255,255,.94);
+  background: rgba(255,255,255,.82);
+  cursor: grab;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  opacity: .72;
+}
+
+.production-auth-badge .soft-button:hover,
+.production-auth-badge .soft-button:focus-visible {
+  opacity: 1;
+}
+
+.production-auth-badge.dragging .soft-button {
+  cursor: grabbing;
+  transform: scale(.98);
 }
 
 .production-auth-modal {
   max-width: 560px;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
 }
 
 .production-auth-form {
@@ -52,7 +74,7 @@
     grid-template-columns: 1fr;
   }
   .production-auth-badge {
-    right: 10px;
-    bottom: 76px;
+    right: 8px;
+    bottom: 70px;
   }
 }

@@ -25,6 +25,7 @@ export function initEvents() {
   renderEventsShell();
   renderEvents();
   bindEvents();
+  window.addEventListener('events:updated', () => renderEvents());
 }
 
 function renderEventsShell() {
@@ -196,11 +197,16 @@ function bindEvents() {
           openQuotationPreview(quote.id);
           return;
         }
-        showToast('บันทึกงานจัดสถานที่แล้ว');
+        state.tab = 'projects';
+        state.selectedEventId = savedEvent.id;
+        showToast(mode === 'draft' ? 'บันทึกแบบร่างงานจัดสถานที่แล้ว' : 'บันทึกงานจัดสถานที่แล้ว');
         closeEventModal();
         renderEvents();
       }
-      catch (error) { document.getElementById('eventFormError').textContent = error.message; }
+      catch (error) {
+        document.getElementById('eventFormError').textContent = error.message;
+        showToast(error.message);
+      }
     }
     if (event.target.id === 'eventCostForm') { addEventCost(Object.fromEntries(new FormData(event.target).entries()), true); showToast('บันทึกต้นทุนและ sync Finance แล้ว'); renderEvents(); }
     if (event.target.id === 'eventSettingsForm') { saveEventSettings(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Event Settings แล้ว'); renderEvents(); }
@@ -209,6 +215,7 @@ function bindEvents() {
 
 function openEventForm(event = {}) {
   const modal = document.getElementById('eventModal');
+  const today = new Date().toISOString().slice(0, 10);
   modal.hidden = false;
   modal.innerHTML = `<section class="modal event-form-modal" role="dialog" aria-modal="true" aria-labelledby="eventFormTitle">
     <button class="icon-button modal-close" data-close-event-modal type="button" aria-label="ปิด">×</button>
@@ -218,7 +225,7 @@ function openEventForm(event = {}) {
       <section class="event-form-grid">
         <fieldset><legend>ข้อมูลลูกค้า</legend>${inputField('customerName','ชื่อลูกค้า','text',event.customerName)}${inputField('customerPhone','เบอร์โทร','tel',event.customerPhone)}${inputField('customerContact','LINE/Facebook','text',event.customerContact)}${textareaField('internalNote','หมายเหตุลูกค้า/ภายใน',event.internalNote)}</fieldset>
         <fieldset><legend>ข้อมูลงาน</legend>${inputField('projectName','ชื่องาน','text',event.projectName)}${selectField('eventType','ประเภทงาน',Object.entries(eventTypes),event.eventType)}${inputField('guestCount','จำนวนแขก','number',event.guestCount)}${inputField('themeColor','ธีมสี','text',event.themeColor)}${inputField('style','สไตล์งาน','text',event.style)}${textareaField('description','รายละเอียดงาน',event.description)}</fieldset>
-        <fieldset><legend>สถานที่และเวลา</legend>${inputField('venueName','ชื่อสถานที่','text',event.venueName)}${textareaField('venueAddress','ที่อยู่สถานที่',event.venueAddress)}${inputField('venueMapLink','Map Link','url',event.venueMapLink)}${inputField('eventDate','วันที่จัดงาน','date',event.eventDate)}${inputField('eventStartTime','เวลาเริ่มงาน','time',event.eventStartTime)}${inputField('eventEndTime','เวลาจบงาน','time',event.eventEndTime)}${inputField('setupDate','วันที่ Setup','date',event.setupDate)}${inputField('setupTime','เวลา Setup','time',event.setupTime)}${inputField('teardownDate','วันที่รื้อถอน','date',event.teardownDate)}${inputField('teardownTime','เวลารื้อถอน','time',event.teardownTime)}</fieldset>
+        <fieldset><legend>สถานที่และเวลา</legend>${inputField('venueName','ชื่อสถานที่','text',event.venueName)}${textareaField('venueAddress','ที่อยู่สถานที่',event.venueAddress)}${inputField('venueMapLink','Map Link','url',event.venueMapLink)}${inputField('eventDate','วันที่จัดงาน','date',event.eventDate || today)}${inputField('eventStartTime','เวลาเริ่มงาน','time',event.eventStartTime || '09:00')}${inputField('eventEndTime','เวลาจบงาน','time',event.eventEndTime || '12:00')}${inputField('setupDate','วันที่ Setup','date',event.setupDate || event.eventDate || today)}${inputField('setupTime','เวลา Setup','time',event.setupTime || '08:00')}${inputField('teardownDate','วันที่รื้อถอน','date',event.teardownDate || event.eventDate || today)}${inputField('teardownTime','เวลารื้อถอน','time',event.teardownTime || '13:00')}</fieldset>
         <fieldset><legend>งบประมาณและการเงิน</legend>${inputField('quotationAmount','ยอดเสนอราคา','number',event.quotationAmount || event.finalAmount)}${inputField('discountAmount','ส่วนลด','number',event.discountAmount || 0)}${inputField('finalAmount','ยอดสุทธิ','number',event.finalAmount)}${inputField('depositAmount','ยอดมัดจำ','number',event.depositAmount)}${inputField('paidAmount','ยอดชำระแล้ว','number',event.paidAmount)}${inputField('estimatedCost','ต้นทุนประมาณการ','number',event.estimatedCost)}${selectField('paymentStatus','สถานะชำระเงิน',Object.entries(eventPaymentStatuses).map(([id,item])=>[id,item.label]),event.paymentStatus)}</fieldset>
         <fieldset><legend>ทีมงาน</legend>${inputField('teamMembers','ทีมงานที่รับผิดชอบ','text',(event.teamMembers || []).join?.(', ') || event.teamMembers || 'ทีมจัดดอกไม้')}${selectField('projectStatus','สถานะโปรเจกต์',Object.entries(projectStatuses).map(([id,item])=>[id,item.label]),event.projectStatus)}</fieldset>
       </section>

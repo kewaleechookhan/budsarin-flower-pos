@@ -123,11 +123,12 @@ function bindCustomerEvents() {
     if (edit) openCustomerModal(edit);
     if (remove) removeCustomer(remove);
     if (followCustomer) openFollowModal(followCustomer);
-    if (event.target.closest('[data-order-customer]')) showToast('สร้างออเดอร์จากลูกค้าจะเชื่อมกับ Orders form ใน Phase ถัดไป');
+    const orderCustomer = event.target.closest('[data-order-customer]')?.dataset.orderCustomer;
+    if (orderCustomer) createOrderFromCustomer(orderCustomer);
     if (doneFollow) { markFollowUpDone(doneFollow); showToast('ปิด Follow-up แล้ว'); renderCustomers(); }
     if (reminder) { markReminderDone(reminder); showToast('บันทึกว่าส่ง Reminder แล้ว'); renderCustomers(); }
     if (copy) copyMessage(copy);
-    if (event.target.id === 'customerExportBtn' || event.target.closest('.js-segment-export')) showToast('Export CRM จะเพิ่มใน Phase ถัดไป');
+    if (event.target.id === 'customerExportBtn' || event.target.closest('.js-segment-export')) exportCustomersCSV();
   });
   document.getElementById('customersView').addEventListener('input', event => {
     if (event.target.id === 'customerSearch') { state.query = event.target.value; renderCustomers(); }
@@ -261,6 +262,38 @@ async function copyMessage(type) {
   }
 }
 
+async function createOrderFromCustomer(id) {
+  const customer = loadCustomers().find(item => item.id === id);
+  if (!customer) return showToast('ไม่พบข้อมูลลูกค้า');
+  window.dispatchEvent(new CustomEvent('route:open', { detail: 'orders' }));
+  try {
+    const orders = await import('./orders.js?v=20260717a');
+    orders.openOrderFormFromCustomer?.(customer);
+    closeCustomerModals();
+    showToast('เปิดฟอร์มออร์เดอร์พร้อมข้อมูลลูกค้าแล้ว');
+  } catch {
+    showToast('เปิดหน้าออร์เดอร์แล้ว กรุณากรอกข้อมูลต่อ');
+  }
+}
+
+function exportCustomersCSV() {
+  const rows = loadCustomers().map(item => ({
+    code: item.customerCode,
+    name: item.customerName,
+    phone: item.phone,
+    line: item.lineId,
+    facebook: item.facebook,
+    email: item.email,
+    type: customerTypes[item.customerType] || item.customerType,
+    segment: customerSegments[item.customerSegment] || item.customerSegment,
+    totalSpent: item.totalSpent,
+    totalOrders: item.totalOrders,
+    lastOrderDate: item.lastOrderDate || ''
+  }));
+  downloadCSV(`budsarin-customers-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+  showToast('ดาวน์โหลดไฟล์ลูกค้า CSV แล้ว');
+}
+
 function kpi(label, value, icon, money = true) {
   return `<article class="customer-kpi"><span>${renderIcon(icon)}</span><small>${label}</small><strong>${money && typeof value === 'number' ? currency(value) : value}</strong></article>`;
 }
@@ -275,4 +308,21 @@ function topCustomers(customers) {
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
+}
+
+function downloadCSV(filename, rows) {
+  if (!rows.length) return showToast('ยังไม่มีข้อมูลสำหรับ Export');
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(','), ...rows.map(row => headers.map(header => csvCell(row[header])).join(','))].join('\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value = '') {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }

@@ -231,7 +231,7 @@ function bindFinanceEvents() {
     showToast('บันทึกตั้งค่าการเงินแล้ว');
     renderFinance();
   });
-  document.getElementById('financeExportBtn').addEventListener('click', () => showToast('Export รายงานจะเพิ่มใน Phase ถัดไป'));
+  document.getElementById('financeExportBtn').addEventListener('click', exportFinanceCSV);
 }
 
 function ensureFinanceModal() {
@@ -338,6 +338,36 @@ function deleteTransaction(value) {
   }
 }
 
+function exportFinanceCSV() {
+  const snapshot = getFinanceSnapshot();
+  const rows = [
+    ...snapshot.income.map(item => ({
+      type: 'income',
+      no: item.transactionNo,
+      date: item.date,
+      description: item.description,
+      category: item.category,
+      amount: item.amount,
+      paymentMethod: paymentMethods[item.paymentMethod] || item.paymentMethod,
+      paymentStatus: paymentStatuses[item.paymentStatus]?.label || item.paymentStatus,
+      party: item.customerName || ''
+    })),
+    ...snapshot.expenses.map(item => ({
+      type: 'expense',
+      no: item.transactionNo,
+      date: item.date,
+      description: item.description,
+      category: item.category,
+      amount: item.amount,
+      paymentMethod: paymentMethods[item.paymentMethod] || item.paymentMethod,
+      paymentStatus: paymentStatuses[item.paymentStatus]?.label || item.paymentStatus,
+      party: item.supplierName || ''
+    }))
+  ].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  downloadCSV(`budsarin-finance-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+  showToast('ดาวน์โหลดไฟล์รายรับรายจ่าย CSV แล้ว');
+}
+
 function fillCategoryOptions(type) {
   const select = document.querySelector('#financeForm select[name="category"]');
   select.innerHTML = (type === 'income' ? incomeCategories : expenseCategories).map(item => `<option value="${item}">${item}</option>`).join('');
@@ -396,4 +426,21 @@ function statusLabel(status) {
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
+}
+
+function downloadCSV(filename, rows) {
+  if (!rows.length) return showToast('ยังไม่มีข้อมูลสำหรับ Export');
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(','), ...rows.map(row => headers.map(header => csvCell(row[header])).join(','))].join('\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value = '') {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }

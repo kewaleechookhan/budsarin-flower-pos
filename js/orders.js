@@ -192,6 +192,20 @@ function openOrderForm(id = null) {
   document.querySelector('#orderForm input[name="customerName"]').focus();
 }
 
+export function openOrderFormFromCustomer(customer = {}) {
+  openOrderForm();
+  const form = document.getElementById('orderForm');
+  form.elements.customerName.value = customer.customerName || '';
+  form.elements.customerPhone.value = customer.phone || '';
+  form.elements.customerContact.value = customer.lineId || customer.facebook || customer.email || '';
+  form.elements.customerAddress.value = customer.address || '';
+  form.elements.colorTheme.value = customer.preferredColorTheme || '';
+  form.elements.flowerStyle.value = customer.preferredFlowerStyle || '';
+  form.elements.budget.value = customer.averageBudget || '';
+  form.elements.isNewCustomer.checked = false;
+  updateOrderSummary();
+}
+
 function fillOrderForm(order) {
   const form = document.getElementById('orderForm');
   form.reset();

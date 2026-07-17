@@ -27,6 +27,7 @@ export function saveProduct(data) {
     price: Number(data.price) || 0,
     cost: Number(data.cost) || 0,
     image: data.image || 'custom-product',
+    imageDataUrl: data.imageDataUrl || '',
     status: data.status || 'พร้อมขาย',
     stockTracking: data.stockTracking === true || data.stockTracking === 'true' || data.stockTracking === 'on'
   };

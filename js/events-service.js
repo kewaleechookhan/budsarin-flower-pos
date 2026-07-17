@@ -41,12 +41,13 @@ export const saveEventSettings = settings => writeStorage(SETTINGS_KEY, { ...loa
 export function saveEventProject(data, mode = 'project') {
   const events = loadEvents();
   const event = normalizeEvent(data, events, mode);
-  validateEvent(event);
+  validateEvent(event, mode);
   const index = events.findIndex(item => item.id === event.id);
   if (index >= 0) events[index] = event;
   else events.unshift(event);
   saveEvents(events);
   ensureEventPayments([event]);
+  window.dispatchEvent(new CustomEvent('events:updated', { detail: event }));
   return event;
 }
 
@@ -176,7 +177,11 @@ function normalizeEvent(data, events, mode) {
   };
 }
 
-function validateEvent(event) {
+function validateEvent(event, mode = 'project') {
+  if (mode === 'draft') {
+    if (!event.customerName && !event.projectName) throw new Error('กรุณากรอกชื่อลูกค้าหรือชื่องานอย่างน้อย 1 ช่อง');
+    return;
+  }
   if (!event.customerName) throw new Error('กรุณากรอกชื่อลูกค้า');
   if (!event.customerPhone) throw new Error('กรุณากรอกเบอร์โทร');
   if (!event.projectName) throw new Error('กรุณากรอกชื่องาน');

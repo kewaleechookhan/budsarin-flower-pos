@@ -222,11 +222,77 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 .topbar {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: minmax(260px, 1fr) minmax(260px, 420px) auto;
   align-items: center;
   gap: 14px;
   margin-bottom: 16px;
+  min-height: 132px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(100deg, rgba(255,249,242,.95), rgba(255,255,255,.72)),
+    linear-gradient(135deg, rgba(243,217,222,.82), rgba(200,169,107,.22)),
+    radial-gradient(circle at 82% 24%, rgba(216,167,177,.38), transparent 32%);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow-card);
+}
+
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--store-cover-url);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--store-cover-opacity, 0);
+  transform: scale(1.01);
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(255,249,242,.95) 0%, rgba(255,249,242,.78) 42%, rgba(255,249,242,.38) 100%),
+    linear-gradient(180deg, rgba(63,55,49,.04), rgba(63,55,49,.16));
+  pointer-events: none;
+}
+
+.topbar.has-store-cover {
+  min-height: 212px;
+  align-items: end;
+  border-color: rgba(200,169,107,.35);
+  --store-cover-opacity: 1;
+  background-size: cover;
+  background-position: center;
+}
+
+.topbar.has-store-cover::after {
+  background:
+    linear-gradient(90deg, rgba(255,249,242,.96) 0%, rgba(255,249,242,.78) 38%, rgba(255,249,242,.2) 100%),
+    linear-gradient(180deg, rgba(63,55,49,.04), rgba(63,55,49,.22));
+}
+
+.topbar.has-store-cover .search-wrap,
+.topbar.has-store-cover .profile,
+.topbar.has-store-cover .top-actions > button,
+.topbar.has-store-cover .top-actions > .profile {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,.82);
+}
+
+.topbar.has-store-cover .page-title h2,
+.topbar.has-store-cover .page-title p,
+.topbar.has-store-cover .eyebrow {
+  text-shadow: 0 1px 16px rgba(255,255,255,.72);
 }
 
 .eyebrow {
