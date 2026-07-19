@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'budsarin-pwa-v30-20260717d-orders-fix';
+const CACHE_VERSION = 'budsarin-pwa-v31-20260719a-full-fix';
 const APP_SHELL = [
   './',
   './index.html',

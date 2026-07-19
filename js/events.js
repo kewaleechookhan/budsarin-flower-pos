@@ -1,13 +1,13 @@
 import { eventCostCategories, eventPaymentStatuses, eventTypes, projectStatuses, quotationCategories } from './events-data.js';
-import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, deleteEventProject, loadEventSettings, saveEventSettings } from './events-service.js?v=20260717c';
-import { loadEventQuotations, createQuotation, updateQuotationStatus, deleteQuotation } from './event-quotations.js?v=20260717c';
-import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js?v=20260717c';
-import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js?v=20260717c';
+import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, deleteEventProject, loadEventSettings, saveEventSettings } from './events-service.js?v=20260719a';
+import { loadEventQuotations, createQuotation, updateQuotationStatus, deleteQuotation } from './event-quotations.js?v=20260719a';
+import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js?v=20260719a';
+import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js?v=20260719a';
 import { calculateChecklistProgress, loadEventChecklists, toggleChecklistTask } from './event-checklists.js';
 import { addTimelineItem, loadEventTimelines, updateTimelineStatus } from './event-timeline.js';
 import { renderIcon } from './icons.js';
 import { loadBrandSettings, loadStoreProfile } from './settings-service.js';
-import { syncAllCalendarEvents } from './calendar-sync.js?v=20260717c';
+import { syncAllCalendarEvents } from './calendar-sync.js?v=20260719a';
 import { currency, number, showToast, thaiDate } from './utils.js';
 
 const state = { tab: 'overview', query: '', status: 'all', selectedEventId: null };
@@ -291,7 +291,7 @@ function printEventDocument() {
   if (!documentHtml) return showToast('ไม่พบเอกสารสำหรับพิมพ์');
   const win = window.open('', '_blank', 'width=900,height=1200');
   if (!win) return showToast('กรุณาอนุญาต popup เพื่อพิมพ์เอกสาร');
-  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Document</title><link rel="stylesheet" href="css/styles.css?v=20260717c"><link rel="stylesheet" href="css/events.css?v=20260717c"><link rel="stylesheet" href="css/receipt-print.css?v=20260717c"><style>body{margin:0;background:#fff;padding:16px}.event-document{margin:auto;box-shadow:none}@page{size:A4;margin:12mm}</style></head><body>${documentHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Document</title><link rel="stylesheet" href="css/styles.css?v=20260719a"><link rel="stylesheet" href="css/events.css?v=20260719a"><link rel="stylesheet" href="css/receipt-print.css?v=20260719a"><style>body{margin:0;background:#fff;padding:16px}.event-document{margin:auto;box-shadow:none}@page{size:A4;margin:12mm}</style></head><body>${documentHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
   win.document.close();
 }
 

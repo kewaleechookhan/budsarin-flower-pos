@@ -1,8 +1,8 @@
 import { calculateOrderFinancials } from './order-calculations.js';
-import { openCostCalculator } from './cost-calculator.js?v=20260717c';
+import { openCostCalculator } from './cost-calculator.js?v=20260719a';
 import { processOrderStockDeduction } from './inventory-service.js';
 import { orderStatuses, orderTypes, paymentStatuses } from './orders-data.js';
-import { cancelOrder, getTimeline, loadOrders, saveOrder, syncDashboardFromOrders, updateOrderStatus } from './orders-service.js?v=20260717d';
+import { cancelOrder, getTimeline, loadOrders, saveOrder, syncDashboardFromOrders, updateOrderStatus } from './orders-service.js?v=20260719a';
 import { renderWorkOrder } from './work-order.js';
 import { renderIcon } from './icons.js';
 import { currency, showToast, thaiDate } from './utils.js';
@@ -293,7 +293,7 @@ function printWorkOrder() {
   if (!html.trim()) return showToast('ไม่พบใบงานสำหรับพิมพ์');
   const win = window.open('', '_blank', 'width=900,height=1200');
   if (!win) return showToast('กรุณาอนุญาต popup เพื่อพิมพ์ใบงาน');
-  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Work Order</title><link rel="stylesheet" href="css/styles.css?v=20260717d"><link rel="stylesheet" href="css/orders.css?v=20260717d"><style>body{margin:0;background:#fff;padding:16px}.work-paper{max-width:190mm;margin:auto;background:#fff;border:0;border-radius:0}@page{size:A4;margin:12mm}</style></head><body>${html}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Work Order</title><link rel="stylesheet" href="css/styles.css?v=20260719a"><link rel="stylesheet" href="css/orders.css?v=20260719a"><style>body{margin:0;background:#fff;padding:16px}.work-paper{max-width:190mm;margin:auto;background:#fff;border:0;border-radius:0}@page{size:A4;margin:12mm}</style></head><body>${html}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
   win.document.close();
 }
 

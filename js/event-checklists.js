@@ -1,14 +1,13 @@
-import { defaultChecklistSections, mockEventProjects } from './events-data.js';
+import { defaultChecklistSections } from './events-data.js';
 import { readStorage, writeStorage, STORAGE_KEYS } from './storage-registry.js';
 
 const KEY = STORAGE_KEYS.eventChecklists;
 
 export function loadEventChecklists() {
   const saved = readStorage(KEY, null);
-  if (Array.isArray(saved) && saved.length) return saved;
-  const rows = mockEventProjects.flatMap(generateDefaultChecklist);
-  writeStorage(KEY, rows);
-  return rows;
+  if (Array.isArray(saved)) return saved;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveEventChecklists = rows => writeStorage(KEY, rows);
@@ -21,8 +20,8 @@ export function generateDefaultChecklist(event) {
     taskName,
     assignedTo: index % 2 ? 'ทีมจัดดอกไม้' : 'ผู้จัดการร้าน',
     dueDate: event.setupDate,
-    isDone: index < 2,
-    completedAt: index < 2 ? new Date().toISOString() : '',
+    isDone: false,
+    completedAt: '',
     note: ''
   })));
 }

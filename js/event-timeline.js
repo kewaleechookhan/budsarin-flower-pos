@@ -1,14 +1,12 @@
-import { mockEventProjects } from './events-data.js';
 import { readStorage, writeStorage, STORAGE_KEYS } from './storage-registry.js';
 
 const KEY = STORAGE_KEYS.eventTimelines;
 
 export function loadEventTimelines() {
   const saved = readStorage(KEY, null);
-  if (Array.isArray(saved) && saved.length) return saved;
-  const rows = mockEventProjects.flatMap(generateDefaultTimelineFromEvent);
-  writeStorage(KEY, rows);
-  return rows;
+  if (Array.isArray(saved)) return saved;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveEventTimelines = rows => writeStorage(KEY, rows);

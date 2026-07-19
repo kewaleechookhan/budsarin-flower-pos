@@ -1,10 +1,10 @@
 import { calculateSaleTotals } from './calculations.js';
-import { openCostCalculator } from './cost-calculator.js?v=20260717c';
+import { openCostCalculator } from './cost-calculator.js?v=20260719a';
 import { renderIcon } from './icons.js';
 import { processPOSStockDeduction } from './inventory-service.js';
 import { consumeRecipeForSaleItem } from './inventory-recipes.js';
 import { productCategories } from './products-data.js';
-import { findProduct, loadProducts } from './products-service.js?v=20260717c';
+import { findProduct, loadProducts } from './products-service.js?v=20260719a';
 import { downloadReceiptText, generateReceipt as renderReceiptHtml } from './receipt.js';
 import { printReceiptBrowser } from './receipt-printer.js';
 import { createSale, holdBill as holdBillService, restoreHeldBill as restoreHeldBillService, saveCartDraft } from './sales-service.js';

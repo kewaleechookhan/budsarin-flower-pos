@@ -1,7 +1,7 @@
 import { costCategories, jobTypes, unitOptions } from './cost-data.js';
 import { calculateCategorySubtotal, calculateGrossMargin, calculateGrossProfit, calculateMarkup, calculateSuggestedPriceByMargin, calculateSuggestedPriceByMarkup, calculateTotalCost, evaluateProfitStatus } from './cost-calculations.js';
 import { applyCostToOrder, deleteTemplate, loadCostHistory, loadCostTemplates, saveHistory, saveTemplate } from './cost-service.js';
-import { starterTemplate } from './cost-templates.js?v=20260717c';
+import { starterTemplate } from './cost-templates.js?v=20260719a';
 import { renderIcon } from './icons.js';
 import { loadInventoryItems } from './inventory-service.js';
 import { currency, number, showToast } from './utils.js';
