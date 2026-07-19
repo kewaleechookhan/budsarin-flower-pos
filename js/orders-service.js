@@ -2,7 +2,7 @@ import { calculateOrderFinancials, getPaymentStatus } from './order-calculations
 import { syncCustomerFromOrders } from './customers-service.js';
 import { syncIncomeFromOrders } from './finance-service.js';
 import { queueWhenOffline } from './offline-queue.js';
-import { mockOrders, orderStatuses } from './orders-data.js';
+import { orderStatuses } from './orders-data.js';
 import { loadState, saveState } from './storage.js';
 
 const ORDERS_KEY = 'budsarin_orders';
@@ -13,13 +13,13 @@ export function loadOrders() {
     const saved = JSON.parse(localStorage.getItem(ORDERS_KEY));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  saveOrders(mockOrders);
-  seedTimelines(mockOrders);
-  return mockOrders;
+  saveOrders([]);
+  return [];
 }
 
 export function saveOrders(orders) {
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  window.dispatchEvent(new CustomEvent('orders:updated', { detail: orders }));
 }
 
 export function loadTimelines() {
@@ -58,6 +58,8 @@ export function saveOrder(data, mode = 'order') {
   syncIncomeFromOrders(order);
   queueWhenOffline({ actionType: index >= 0 ? 'update' : 'create', entityType: 'order', entityId: order.id, endpoint: '/sync/offline-queue', payload: order });
   syncDashboardFromOrders(orders);
+  window.dispatchEvent(new CustomEvent('orders:refresh', { detail: order }));
+  window.dispatchEvent(new CustomEvent('calendar:refresh'));
   return order;
 }
 
@@ -71,6 +73,8 @@ export function updateOrderStatus(orderId, nextStatus) {
   saveOrders(orders);
   appendTimeline(orderId, `เปลี่ยนสถานะเป็น ${orderStatuses[nextStatus]?.label || nextStatus}`, nextStatus);
   syncDashboardFromOrders(orders);
+  window.dispatchEvent(new CustomEvent('orders:refresh', { detail: order }));
+  window.dispatchEvent(new CustomEvent('calendar:refresh'));
   return order;
 }
 
@@ -129,14 +133,6 @@ export function syncDashboardFromOrders(orders = loadOrders()) {
   }
   saveState(dashboard);
   window.dispatchEvent(new CustomEvent('dashboard:update', { detail: dashboard }));
-}
-
-function seedTimelines(orders) {
-  const timelines = {};
-  orders.forEach(order => {
-    timelines[order.id] = [{ at: order.createdAt, label: 'สร้าง mock order', status: order.orderStatus }];
-  });
-  saveTimelines(timelines);
 }
 
 function nextOrderNo(orders) {

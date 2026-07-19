@@ -1,7 +1,7 @@
-import { costCategories, jobTypes, mockCostItems, unitOptions } from './cost-data.js';
+import { costCategories, jobTypes, unitOptions } from './cost-data.js';
 import { calculateCategorySubtotal, calculateGrossMargin, calculateGrossProfit, calculateMarkup, calculateSuggestedPriceByMargin, calculateSuggestedPriceByMarkup, calculateTotalCost, evaluateProfitStatus } from './cost-calculations.js';
 import { applyCostToOrder, deleteTemplate, loadCostHistory, loadCostTemplates, saveHistory, saveTemplate } from './cost-service.js';
-import { starterTemplate } from './cost-templates.js';
+import { starterTemplate } from './cost-templates.js?v=20260717c';
 import { renderIcon } from './icons.js';
 import { loadInventoryItems } from './inventory-service.js';
 import { currency, number, showToast } from './utils.js';
@@ -63,7 +63,7 @@ function renderCostShell() {
   `;
   document.getElementById('costJobType').innerHTML = Object.entries(jobTypes).map(([id, label]) => `<option value="${id}">${label}</option>`).join('');
   const inventoryOptions = loadInventoryItems().map(item => `<option value="inventory:${item.id}">${item.itemName} - ${currency(item.averageCost || item.costPerUnit)}</option>`).join('');
-  document.getElementById('quickCostItem').innerHTML = '<option value="">เลือกวัตถุดิบตัวอย่าง</option>' + inventoryOptions + mockCostItems.map(item => `<option value="${item.id}">${item.name} - ${currency(item.defaultCost)}</option>`).join('');
+  document.getElementById('quickCostItem').innerHTML = '<option value="">เพิ่มรายการว่าง</option>' + inventoryOptions;
   ensureCostModals();
 }
 
@@ -112,7 +112,7 @@ function costItemRow(item) {
       <div class="qty-stepper"><button data-dec="${item.id}" type="button">${renderIcon('minus')}</button><input data-field="quantity" type="number" min="0" value="${item.quantity}"><button data-inc="${item.id}" type="button">${renderIcon('plus')}</button></div>
       <select data-field="unit">${unitOptions.map(unit => `<option ${unit === item.unit ? 'selected' : ''}>${unit}</option>`).join('')}</select>
       <input data-field="unitCost" type="number" min="0" value="${item.unitCost}" aria-label="ราคาทุนต่อหน่วย">
-      <strong>${currency((Number(item.quantity) || 0) * (Number(item.unitCost) || 0))}</strong>
+      <strong data-row-total>${currency((Number(item.quantity) || 0) * (Number(item.unitCost) || 0))}</strong>
       <input data-field="supplier" value="${item.supplier || ''}" aria-label="ซัพพลายเออร์">
       <button class="icon-button" data-dup="${item.id}" type="button" aria-label="Duplicate">${renderIcon('plus')}</button>
       <button class="icon-button remove-button" data-del="${item.id}" type="button" aria-label="ลบ">${renderIcon('trash')}</button>
@@ -223,23 +223,24 @@ function updateCostItem(id, field, value) {
   const item = state.items.find(row => row.id === id);
   if (!item) return;
   item[field] = ['quantity', 'unitCost'].includes(field) ? Math.max(Number(value) || 0, 0) : value;
-  renderCostItems();
+  const row = document.querySelector(`.cost-row[data-cost-id="${id}"]`);
+  const total = row?.querySelector('[data-row-total]');
+  if (total) total.textContent = currency((Number(item.quantity) || 0) * (Number(item.unitCost) || 0));
   renderCostSummary();
 }
 
 function addCostItem() {
   const value = document.getElementById('quickCostItem').value;
   const inventory = value.startsWith('inventory:') ? loadInventoryItems().find(item => item.id === value.replace('inventory:', '')) : null;
-  const selected = inventory ? null : mockCostItems.find(item => item.id === value);
   state.items.push({
     id: crypto.randomUUID(),
     inventoryItemId: inventory?.id || '',
-    category: selected?.category || inventory?.category || 'อื่น ๆ',
-    itemName: selected?.name || inventory?.itemName || 'รายการใหม่',
+    category: inventory?.category || 'อื่น ๆ',
+    itemName: inventory?.itemName || '',
     quantity: 1,
-    unit: selected?.defaultUnit || inventory?.unit || 'ชิ้น',
-    unitCost: selected?.defaultCost || inventory?.averageCost || inventory?.costPerUnit || 0,
-    supplier: selected?.supplier || inventory?.supplierName || '',
+    unit: inventory?.unit || 'ชิ้น',
+    unitCost: inventory?.averageCost || inventory?.costPerUnit || 0,
+    supplier: inventory?.supplierName || '',
     note: ''
   });
   renderCostCalculator();

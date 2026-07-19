@@ -1,16 +1,14 @@
-import { defaultCostItems } from './cost-data.js';
-
 export const starterTemplate = {
   jobType: 'bouquet',
-  templateName: 'ช่อกุหลาบชมพู Premium',
-  sellingPrice: 1500,
-  targetMargin: 45,
-  targetMarkup: 80,
+  templateName: '',
+  sellingPrice: 0,
+  targetMargin: 0,
+  targetMarkup: 0,
   laborCost: 0,
   deliveryCost: 0,
-  wasteRate: 8,
+  wasteRate: 0,
   fixedWasteCost: 0,
-  overheadRate: 5,
+  overheadRate: 0,
   fixedOverheadCost: 0,
-  items: defaultCostItems
+  items: []
 };

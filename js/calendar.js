@@ -1,6 +1,6 @@
 import { calendarStatuses, calendarTabs, eventTypes, priorities, sourceTypes } from './calendar-data.js';
-import { filterCalendarEvents, getCalendarAlerts, getCalendarKpis, getMonthMatrix, getQuickFilteredEvents, getTodayEvents, getWeekEvents, loadCalendarEvents, loadCalendarSettings, rescheduleCalendarEvent, saveCalendarSettings, todayKey, updateCalendarEventStatus } from './calendar-service.js';
-import { syncAllCalendarEvents } from './calendar-sync.js';
+import { filterCalendarEvents, getCalendarAlerts, getCalendarKpis, getMonthMatrix, getQuickFilteredEvents, getTodayEvents, getWeekEvents, loadCalendarEvents, loadCalendarSettings, rescheduleCalendarEvent, saveCalendarSettings, todayKey, updateCalendarEventStatus } from './calendar-service.js?v=20260717c';
+import { syncAllCalendarEvents } from './calendar-sync.js?v=20260717c';
 import { createManualTask, deleteManualTask, loadManualTasks } from './manual-tasks.js';
 import { dismissReminder, generateRemindersFromCalendarEvents, getDueReminders, loadReminders, markReminderDone, snoozeReminder } from './reminders.js';
 import { completeWorkQueueItem, getDailyWorkQueue, saveQueueNote } from './work-queue.js';

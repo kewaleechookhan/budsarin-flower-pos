@@ -5,9 +5,9 @@ const PRODUCTS_KEY = 'budsarin_products';
 export function loadProducts() {
   try {
     const saved = JSON.parse(localStorage.getItem(PRODUCTS_KEY));
-    return Array.isArray(saved) ? saved : [...defaultProducts];
+    return Array.isArray(saved) ? saved : [];
   } catch {
-    return [...defaultProducts];
+    return [];
   }
 }
 

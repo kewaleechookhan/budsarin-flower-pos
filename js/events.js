@@ -1,12 +1,13 @@
 import { eventCostCategories, eventPaymentStatuses, eventTypes, projectStatuses, quotationCategories } from './events-data.js';
-import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, loadEventSettings, saveEventSettings } from './events-service.js';
-import { loadEventQuotations, createQuotation, updateQuotationStatus } from './event-quotations.js';
-import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js';
-import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js';
+import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, deleteEventProject, loadEventSettings, saveEventSettings } from './events-service.js?v=20260717c';
+import { loadEventQuotations, createQuotation, updateQuotationStatus, deleteQuotation } from './event-quotations.js?v=20260717c';
+import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js?v=20260717c';
+import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js?v=20260717c';
 import { calculateChecklistProgress, loadEventChecklists, toggleChecklistTask } from './event-checklists.js';
 import { addTimelineItem, loadEventTimelines, updateTimelineStatus } from './event-timeline.js';
 import { renderIcon } from './icons.js';
 import { loadBrandSettings, loadStoreProfile } from './settings-service.js';
+import { syncAllCalendarEvents } from './calendar-sync.js?v=20260717c';
 import { currency, number, showToast, thaiDate } from './utils.js';
 
 const state = { tab: 'overview', query: '', status: 'all', selectedEventId: null };
@@ -92,7 +93,7 @@ function renderProjects() {
 function renderQuotations() {
   const quotes = loadEventQuotations();
   return `<section class="panel"><div class="panel-heading"><div><p class="eyebrow">Quotation</p><h3>ใบเสนอราคา</h3></div></div>
-    <div class="event-table">${quotes.map(q => `<div class="event-table-row"><div><strong>${q.quotationNo}</strong><span>${q.projectName} • ${q.customerName}</span></div><b>${currency(q.totalAmount)}</b><span class="badge info">${q.quotationStatus}</span><button class="soft-button" data-preview-quote="${q.id}" type="button">Preview</button><button class="primary-button" data-send-quote="${q.id}" type="button">ส่งให้ลูกค้า</button></div>`).join('') || empty('ยังไม่มีใบเสนอราคา')}</div>
+    <div class="event-table">${quotes.map(q => `<div class="event-table-row"><div><strong>${q.quotationNo}</strong><span>${q.projectName} • ${q.customerName}</span></div><b>${currency(q.totalAmount)}</b><span class="badge info">${q.quotationStatus}</span><button class="soft-button" data-preview-quote="${q.id}" type="button">เปิดดู</button><button class="soft-button" data-edit-event="${q.eventId}" type="button">แก้ไขงาน</button><button class="primary-button" data-send-quote="${q.id}" type="button">ส่งให้ลูกค้า</button><button class="danger-button" data-delete-quote="${q.id}" type="button">ลบ</button></div>`).join('') || empty('ยังไม่มีใบเสนอราคา')}</div>
   </section>`;
 }
 
@@ -107,8 +108,8 @@ function renderProfit() {
   const events = loadEvents();
   const costs = loadEventCosts();
   return `<section class="events-dashboard-grid">
-    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">Cost Breakdown</p><h3>ต้นทุนตามหมวด</h3></div></div>${costBreakdown(costs).map(row => `<div class="finance-row"><span>${row.label}</span><strong>${currency(row.value)}</strong></div>`).join('')}</article>
-    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">Profit Ranking</p><h3>กำไรต่อโปรเจกต์</h3></div></div>${events.sort((a,b)=>b.grossProfit-a.grossProfit).map(item => `<div class="event-alert-row"><strong>${item.projectName}</strong><span>${currency(item.grossProfit)} • ${number(item.grossMargin.toFixed(1))}%</span></div>`).join('')}</article>
+    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">Cost Breakdown</p><h3>ต้นทุนตามหมวด</h3></div></div>${costBreakdown(costs).map(row => `<div class="finance-row"><span>${row.label}</span><strong>${currency(row.value)}</strong></div>`).join('') || empty('ยังไม่มีต้นทุน Event')}</article>
+    <article class="panel"><div class="panel-heading"><div><p class="eyebrow">Profit Ranking</p><h3>กำไรต่อโปรเจกต์</h3></div></div>${events.sort((a,b)=>b.grossProfit-a.grossProfit).map(item => `<div class="event-alert-row"><strong>${item.projectName}</strong><span>${currency(item.grossProfit)} • ${number(item.grossMargin.toFixed(1))}%</span></div>`).join('') || empty('ยังไม่มีโปรเจกต์')}</article>
     <form class="panel" id="eventCostForm"><div class="panel-heading"><div><p class="eyebrow">Add Cost</p><h3>เพิ่มต้นทุน Event</h3></div></div>
       ${selectField('eventId','โปรเจกต์', events.map(item => [item.id, item.projectName]))}
       ${selectField('category','หมวดต้นทุน', eventCostCategories.map(item => [item,item]))}
@@ -155,9 +156,26 @@ function bindEvents() {
     const tab = event.target.closest('[data-events-tab]')?.dataset.eventsTab || event.target.closest('[data-events-tab-shortcut]')?.dataset.eventsTabShortcut;
     if (tab) { state.tab = tab; return renderEvents(); }
     if (event.target.closest('#newEventBtn')) return openEventForm();
-    if (event.target.closest('#newQuotationBtn')) { const ev = loadEvents()[0]; const quote = createQuotation(ev); showToast('สร้างใบเสนอราคาแล้ว'); return openQuotationPreview(quote.id); }
+    if (event.target.closest('#newQuotationBtn')) {
+      const ev = loadEvents()[0];
+      if (!ev) {
+        showToast('กรุณาเพิ่มงานจัดสถานที่ก่อนสร้างใบเสนอราคา');
+        return openEventForm();
+      }
+      const quote = createQuotation(ev);
+      showToast('สร้างใบเสนอราคาแล้ว');
+      return openQuotationPreview(quote.id);
+    }
     const edit = event.target.closest('[data-edit-event]')?.dataset.editEvent;
     if (edit) return openEventForm(loadEvents().find(item => item.id === edit));
+    const removeEvent = event.target.closest('[data-delete-event]')?.dataset.deleteEvent;
+    if (removeEvent) {
+      if (!confirm('ต้องการลบงานจัดสถานที่นี้หรือไม่?')) return;
+      deleteEventProject(removeEvent);
+      syncAllCalendarEvents();
+      showToast('ลบงานจัดสถานที่แล้ว');
+      return renderEvents();
+    }
     const status = event.target.closest('[data-next-event-status]')?.dataset.nextEventStatus;
     if (status) { cycleStatus(status); showToast('อัปเดตสถานะโปรเจกต์แล้ว'); return renderEvents(); }
     const deposit = event.target.closest('[data-record-deposit]')?.dataset.recordDeposit;
@@ -166,6 +184,13 @@ function bindEvents() {
     if (previewQuote) return openQuotationPreview(previewQuote);
     const sendQuote = event.target.closest('[data-send-quote]')?.dataset.sendQuote;
     if (sendQuote) { updateQuotationStatus(sendQuote, 'sent'); showToast('บันทึกสถานะว่าส่งใบเสนอราคาแล้ว'); return renderEvents(); }
+    const removeQuote = event.target.closest('[data-delete-quote]')?.dataset.deleteQuote;
+    if (removeQuote) {
+      if (!confirm('ต้องการลบใบเสนอราคานี้หรือไม่?')) return;
+      deleteQuotation(removeQuote);
+      showToast('ลบใบเสนอราคาแล้ว');
+      return renderEvents();
+    }
     const agreement = event.target.closest('[data-agreement-event]')?.dataset.agreementEvent;
     if (agreement) return openAgreementPreview(agreement);
     const task = event.target.closest('[data-toggle-event-task]')?.dataset.toggleEventTask;
@@ -173,7 +198,7 @@ function bindEvents() {
     const timeline = event.target.closest('[data-done-timeline]')?.dataset.doneTimeline;
     if (timeline) { updateTimelineStatus(timeline, 'done'); showToast('อัปเดต Timeline แล้ว'); return renderEvents(); }
     if (event.target.closest('[data-close-event-modal]')) closeEventModal();
-    if (event.target.closest('[data-print-event-doc]')) window.print();
+    if (event.target.closest('[data-print-event-doc]')) printEventDocument();
   });
   document.getElementById('eventsView').addEventListener('input', event => {
     if (event.target.id === 'eventSearch') { state.query = event.target.value; renderEvents(); }
@@ -188,6 +213,7 @@ function bindEvents() {
       try {
         const mode = event.submitter?.dataset.mode || 'project';
         const savedEvent = saveEventProject(Object.fromEntries(new FormData(event.target).entries()), mode);
+        syncAllCalendarEvents();
         if (mode === 'quotation') {
           const quote = createQuotation(savedEvent);
           updateEventStatus(savedEvent.id, 'quotation_draft');
@@ -260,6 +286,15 @@ function openAgreementPreview(id) {
   modal.innerHTML = `<section class="modal event-document-modal"><button class="icon-button modal-close" data-close-event-modal type="button">×</button><article class="event-document"><h2>ข้อตกลงเบื้องต้น</h2><p>เอกสารนี้เป็นข้อตกลงเบื้องต้น ไม่ใช่สัญญากฎหมายสมบูรณ์</p><div class="doc-grid"><span>ลูกค้า</span><strong>${event.customerName}</strong><span>งาน</span><strong>${event.projectName}</strong><span>ยอดรวม</span><strong>${currency(event.finalAmount)}</strong><span>มัดจำ</span><strong>${currency(event.depositAmount)}</strong><span>Setup</span><strong>${event.setupDate} ${event.setupTime}</strong><span>Teardown</span><strong>${event.teardownDate} ${event.teardownTime}</strong></div><p>ร้านรับผิดชอบการจัดดอกไม้ ติดตั้ง และรื้อถอนตามรายการที่ตกลง ลูกค้ารับผิดชอบการอนุญาตใช้สถานที่และชำระเงินตามงวด</p><div class="signature-grid"><span>ร้าน Budsarin Flower</span><span>ลูกค้า</span></div></article><div class="events-actions"><button class="primary-button" data-print-event-doc type="button">พิมพ์</button><button class="soft-button" data-close-event-modal type="button">ปิด</button></div></section>`;
 }
 
+function printEventDocument() {
+  const documentHtml = document.querySelector('#eventPreviewModal .event-document')?.outerHTML;
+  if (!documentHtml) return showToast('ไม่พบเอกสารสำหรับพิมพ์');
+  const win = window.open('', '_blank', 'width=900,height=1200');
+  if (!win) return showToast('กรุณาอนุญาต popup เพื่อพิมพ์เอกสาร');
+  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Document</title><link rel="stylesheet" href="css/styles.css?v=20260717c"><link rel="stylesheet" href="css/events.css?v=20260717c"><link rel="stylesheet" href="css/receipt-print.css?v=20260717c"><style>body{margin:0;background:#fff;padding:16px}.event-document{margin:auto;box-shadow:none}@page{size:A4;margin:12mm}</style></head><body>${documentHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  win.document.close();
+}
+
 function closeEventModal() {
   document.getElementById('eventModal').hidden = true;
   document.getElementById('eventPreviewModal').hidden = true;
@@ -271,7 +306,7 @@ function filteredEvents() {
 }
 
 function projectCard(item) {
-  return `<article class="event-project-card"><div><p class="eyebrow">${eventTypes[item.eventType]}</p><h3>${item.projectName}</h3><span>${item.customerName} • ${item.venueName}</span></div>${statusBadge(projectStatuses, item.projectStatus)}<div class="event-money"><strong>${currency(item.finalAmount)}</strong><small>คงเหลือ ${currency(item.balanceAmount)} • Margin ${number(item.grossMargin.toFixed(1))}%</small></div><div class="bar"><span style="width:${Math.min(100, Math.round((item.paidAmount / Math.max(item.finalAmount,1))*100))}%"></span></div><div class="events-actions"><button class="soft-button" data-edit-event="${item.id}" type="button">แก้ไข</button><button class="primary-button" data-record-deposit="${item.id}" type="button">รับมัดจำ</button><button class="soft-button" data-agreement-event="${item.id}" type="button">ข้อตกลง</button><button class="soft-button" data-next-event-status="${item.id}" type="button">สถานะถัดไป</button></div></article>`;
+  return `<article class="event-project-card"><div><p class="eyebrow">${eventTypes[item.eventType]}</p><h3>${item.projectName}</h3><span>${item.customerName} • ${item.venueName}</span></div>${statusBadge(projectStatuses, item.projectStatus)}<div class="event-money"><strong>${currency(item.finalAmount)}</strong><small>คงเหลือ ${currency(item.balanceAmount)} • Margin ${number(item.grossMargin.toFixed(1))}%</small></div><div class="bar"><span style="width:${Math.min(100, Math.round((item.paidAmount / Math.max(item.finalAmount,1))*100))}%"></span></div><div class="events-actions"><button class="soft-button" data-edit-event="${item.id}" type="button">แก้ไข</button><button class="primary-button" data-record-deposit="${item.id}" type="button">รับมัดจำ</button><button class="soft-button" data-agreement-event="${item.id}" type="button">ข้อตกลง</button><button class="soft-button" data-next-event-status="${item.id}" type="button">สถานะถัดไป</button><button class="danger-button" data-delete-event="${item.id}" type="button">ลบ</button></div></article>`;
 }
 
 function eventRow(item) {

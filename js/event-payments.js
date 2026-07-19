@@ -59,7 +59,16 @@ export function recordEventPayment(event, amount, method = 'transfer', note = ''
 export function syncEventPaymentToFinance(event, payment) {
   const income = readStorage(INCOME_KEY, []);
   const sourceId = `${event.id}-${payment.id}`;
-  if (income.some(item => item.sourceType === 'event' && item.sourceId === sourceId)) return null;
+  const existing = income.find(item => item.sourceType === 'event' && item.sourceId === sourceId);
+  if (existing) {
+    existing.amount = Number(payment.paidAmount || 0);
+    existing.paymentMethod = payment.paymentMethod;
+    existing.paymentStatus = 'paid';
+    existing.updatedAt = new Date().toISOString();
+    writeStorage(INCOME_KEY, income);
+    window.dispatchEvent(new CustomEvent('finance:update', { detail: existing }));
+    return existing;
+  }
   const item = {
     id: crypto.randomUUID(),
     transactionNo: `EV-INC-${String(income.length + 1).padStart(4, '0')}`,
@@ -76,6 +85,7 @@ export function syncEventPaymentToFinance(event, payment) {
   };
   income.unshift(item);
   writeStorage(INCOME_KEY, income);
+  window.dispatchEvent(new CustomEvent('finance:update', { detail: item }));
   return item;
 }
 

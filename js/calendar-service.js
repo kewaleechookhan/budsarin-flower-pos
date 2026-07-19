@@ -1,4 +1,4 @@
-import { calendarStatuses, defaultCalendarSettings, mockCalendarEvents, sourceTypes } from './calendar-data.js';
+import { calendarStatuses, defaultCalendarSettings, sourceTypes } from './calendar-data.js';
 
 const EVENT_KEY = 'budsarin_calendar_events';
 const SETTINGS_KEY = 'budsarin_calendar_settings';
@@ -6,7 +6,7 @@ const SETTINGS_KEY = 'budsarin_calendar_settings';
 export const todayKey = () => new Date().toISOString().slice(0, 10);
 
 export function loadCalendarEvents() {
-  return loadArray(EVENT_KEY, mockCalendarEvents).map(event => ({ ...event, status: inferStatus(event) }));
+  return loadArray(EVENT_KEY, []).map(event => ({ ...event, status: inferStatus(event) }));
 }
 
 export function saveCalendarEvents(events) {

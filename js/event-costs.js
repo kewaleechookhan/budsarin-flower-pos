@@ -1,4 +1,4 @@
-import { eventCostCategories, mockEventProjects } from './events-data.js';
+import { eventCostCategories } from './events-data.js';
 import { readStorage, writeStorage, STORAGE_KEYS } from './storage-registry.js';
 
 const KEY = STORAGE_KEYS.eventCosts;
@@ -6,10 +6,9 @@ const EXPENSE_KEY = STORAGE_KEYS.expenseTransactions;
 
 export function loadEventCosts() {
   const saved = readStorage(KEY, null);
-  if (Array.isArray(saved) && saved.length) return saved;
-  const rows = mockEventProjects.flatMap(event => seedCostsForEvent(event));
-  writeStorage(KEY, rows);
-  return rows;
+  if (Array.isArray(saved)) return saved;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveEventCosts = rows => writeStorage(KEY, rows);
@@ -69,14 +68,4 @@ function normalizeCost(data) {
     note: data.note || '',
     createdAt: data.createdAt || new Date().toISOString()
   };
-}
-
-function seedCostsForEvent(event) {
-  return [
-    ['ดอกไม้', 'ดอกไม้สดตามธีม', 1, Math.round(event.estimatedCost * .42)],
-    ['โครงสร้าง / Backdrop', 'Backdrop และโครงสร้าง', 1, Math.round(event.estimatedCost * .23)],
-    ['ค่าแรงทีมงาน', 'ทีมติดตั้งและรื้อถอน', 1, Math.round(event.estimatedCost * .2)],
-    ['ค่ารถ / ค่าน้ำมัน', 'ขนส่งอุปกรณ์', 1, Math.round(event.estimatedCost * .08)],
-    ['Waste / Loss', 'เผื่อสูญเสียดอกไม้', 1, Math.round(event.estimatedCost * .07)]
-  ].map((row, index) => normalizeCost({ id: `${event.id}-cost-${index + 1}`, eventId: event.id, category: row[0], itemName: row[1], quantity: row[2], unitCost: row[3], isActual: false }));
 }

@@ -1,10 +1,10 @@
 import { calculateSaleTotals } from './calculations.js';
-import { openCostCalculator } from './cost-calculator.js';
+import { openCostCalculator } from './cost-calculator.js?v=20260717c';
 import { renderIcon } from './icons.js';
 import { processPOSStockDeduction } from './inventory-service.js';
 import { consumeRecipeForSaleItem } from './inventory-recipes.js';
 import { productCategories } from './products-data.js';
-import { findProduct, loadProducts } from './products-service.js';
+import { findProduct, loadProducts } from './products-service.js?v=20260717c';
 import { downloadReceiptText, generateReceipt as renderReceiptHtml } from './receipt.js';
 import { printReceiptBrowser } from './receipt-printer.js';
 import { createSale, holdBill as holdBillService, restoreHeldBill as restoreHeldBillService, saveCartDraft } from './sales-service.js';
@@ -129,7 +129,7 @@ function renderProducts() {
   });
   document.getElementById('productGrid').innerHTML = visible.map(product => `
     <button class="product-card" data-product-id="${product.id}" type="button">
-      <span class="product-image" aria-hidden="true">${product.imageDataUrl ? `<img src="${product.imageDataUrl}" alt="">` : renderIcon('flower')}</span>
+      <span class="product-image" aria-hidden="true">${productImage(product) ? `<img src="${productImage(product)}" alt="">` : renderIcon('flower')}</span>
       <span class="badge gold">${product.category}</span>
       <strong>${product.name}</strong>
       <span class="product-meta"><b>${currency(product.price)}</b><small>${product.status}</small></span>
@@ -418,6 +418,11 @@ function resetCart(render = true) {
 
 function documentLabel(type) {
   return documentTypes.find(([id]) => id === type)?.[1] || 'ใบเสร็จรับเงิน';
+}
+
+function productImage(product = {}) {
+  const image = product.imageDataUrl || product.image || '';
+  return String(image).startsWith('data:image/') ? image : '';
 }
 
 function ensurePosModals() {

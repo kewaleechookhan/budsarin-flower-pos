@@ -1,8 +1,8 @@
 import { calculateOrderFinancials } from './order-calculations.js';
-import { openCostCalculator } from './cost-calculator.js';
+import { openCostCalculator } from './cost-calculator.js?v=20260717c';
 import { processOrderStockDeduction } from './inventory-service.js';
 import { orderStatuses, orderTypes, paymentStatuses } from './orders-data.js';
-import { cancelOrder, getTimeline, loadOrders, saveOrder, syncDashboardFromOrders, updateOrderStatus } from './orders-service.js';
+import { cancelOrder, getTimeline, loadOrders, saveOrder, syncDashboardFromOrders, updateOrderStatus } from './orders-service.js?v=20260717d';
 import { renderWorkOrder } from './work-order.js';
 import { renderIcon } from './icons.js';
 import { currency, showToast, thaiDate } from './utils.js';
@@ -75,8 +75,8 @@ function getFilteredOrders() {
 }
 
 function orderCard(order) {
-  const status = orderStatuses[order.orderStatus];
-  const payment = paymentStatuses[order.paymentStatus];
+  const status = orderStatuses[order.orderStatus] || { label: order.orderStatus || 'ไม่ระบุ', tone: 'info' };
+  const payment = paymentStatuses[order.paymentStatus] || { label: order.paymentStatus || 'ไม่ระบุ', tone: 'info' };
   return `
     <article class="order-card ${order.id === state.selectedId ? 'active' : ''}" data-order-id="${order.id}">
       <button class="order-card-main" data-select-order="${order.id}" type="button">
@@ -103,7 +103,7 @@ function renderDetail(order) {
   panel.innerHTML = `
     <div class="detail-head">
       <div><p class="eyebrow">Order Detail</p><h3>${order.orderNo}</h3><span>${order.title}</span></div>
-      <span class="badge ${orderStatuses[order.orderStatus].tone}">${orderStatuses[order.orderStatus].label}</span>
+      <span class="badge ${statusMeta(order.orderStatus, orderStatuses).tone}">${statusMeta(order.orderStatus, orderStatuses).label}</span>
     </div>
     <div class="reference-box">${renderIcon('flower')}<span>Reference: ${order.referenceImage || 'placeholder'}</span></div>
     <div class="detail-grid-mini">
@@ -115,7 +115,7 @@ function renderDetail(order) {
       ${detail('สไตล์', order.flowerStyle || '-')}
       ${detail('ยอดรวม', currency(order.totalAmount))}
       ${detail('มัดจำ/คงเหลือ', `${currency(order.depositAmount)} / ${currency(order.balanceAmount)}`)}
-      ${detail('กำไรประมาณการ', `${currency(order.grossProfit)} (${order.grossMargin.toFixed(1)}%)`)}
+      ${detail('กำไรประมาณการ', `${currency(order.grossProfit)} (${Number(order.grossMargin || 0).toFixed(1)}%)`)}
     </div>
     <section class="detail-note"><h4>รายละเอียด</h4><p>${order.description || '-'}</p><h4>ข้อความบนการ์ด</h4><p>${order.cardMessage || '-'}</p><h4>หมายเหตุภายใน</h4><p>${order.internalNote || '-'}</p></section>
     <div class="detail-actions">
@@ -140,6 +140,7 @@ function bindOrdersEvents() {
     const cancelId = event.target.closest('[data-cancel-order]')?.dataset.cancelOrder;
     const workId = event.target.closest('[data-work-order]')?.dataset.workOrder;
     const costId = event.target.closest('[data-cost-order]')?.dataset.costOrder;
+    if (event.target.closest('#newOrderBtn')) openOrderForm();
     if (selectId) selectOrder(selectId);
     if (editId) openOrderForm(editId);
     if (nextId) changeStatus(nextId);
@@ -216,25 +217,38 @@ function fillOrderForm(order) {
     if (form.elements[key] != null) form.elements[key].value = value;
   });
   if (!order.dueDate) form.elements.dueDate.value = new Date().toISOString().slice(0, 10);
+  if (!order.dueTime) form.elements.dueTime.value = '10:00';
+  if (!order.title) form.elements.title.value = '';
+  if (!order.pickupMethod) form.elements.pickupMethod.value = 'pickup';
   updateOrderSummary();
 }
 
 function submitOrder(mode) {
   const form = document.getElementById('orderForm');
   const error = document.getElementById('orderFormError');
-  const data = Object.fromEntries(new FormData(form).entries());
-  const validation = validateOrder(data, mode);
-  if (validation) {
-    error.textContent = validation;
-    return;
+  try {
+    error.textContent = '';
+    const data = Object.fromEntries(new FormData(form).entries());
+    const validation = validateOrder(data, mode);
+    if (validation) {
+      error.textContent = validation;
+      showToast(validation);
+      return null;
+    }
+    const existing = state.orders.find(item => item.id === state.editingId);
+    const order = saveOrder({ ...existing, ...data, id: state.editingId, isNewCustomer: form.elements.isNewCustomer.checked, totalAmount: Number(data.totalAmount), estimatedCost: Number(data.estimatedCost), depositAmount: Number(data.depositAmount), paidAmount: Number(data.paidAmount), deliveryFee: Number(data.deliveryFee) }, mode);
+    state.orders = loadOrders();
+    state.selectedId = order.id;
+    state.editingId = order.id;
+    closeOrderModals();
+    renderOrders();
+    showToast(mode === 'draft' ? 'บันทึกแบบร่างแล้ว' : 'บันทึกออร์เดอร์แล้ว');
+    return order;
+  } catch (err) {
+    error.textContent = err.message || 'บันทึกออร์เดอร์ไม่สำเร็จ';
+    showToast(error.textContent);
+    return null;
   }
-  const existing = state.orders.find(item => item.id === state.editingId);
-  const order = saveOrder({ ...existing, ...data, id: state.editingId, isNewCustomer: form.elements.isNewCustomer.checked, totalAmount: Number(data.totalAmount), estimatedCost: Number(data.estimatedCost), depositAmount: Number(data.depositAmount), paidAmount: Number(data.paidAmount), deliveryFee: Number(data.deliveryFee) }, mode);
-  state.orders = loadOrders();
-  state.selectedId = order.id;
-  closeOrderModals();
-  renderOrders();
-  showToast(mode === 'draft' ? 'บันทึกแบบร่างแล้ว' : 'บันทึกออร์เดอร์แล้ว');
 }
 
 function validateOrder(data, mode) {
@@ -242,6 +256,7 @@ function validateOrder(data, mode) {
     if (!data.customerName?.trim()) return 'กรุณากรอกชื่อลูกค้า';
     if (!data.customerPhone?.trim()) return 'กรุณากรอกเบอร์โทร';
     if (!data.orderType) return 'กรุณาเลือกประเภทออร์เดอร์';
+    if (!data.title?.trim()) return 'กรุณากรอกชื่อ/รายละเอียดงาน';
     if (!data.dueDate) return 'กรุณาเลือกวันที่รับ/ส่ง';
   }
   const total = Number(data.totalAmount) || 0;
@@ -271,6 +286,15 @@ function openWorkOrder(id) {
   if (!order) return;
   document.getElementById('workOrderPreview').innerHTML = renderWorkOrder(order);
   document.getElementById('workOrderModal').hidden = false;
+}
+
+function printWorkOrder() {
+  const html = document.getElementById('workOrderPreview')?.innerHTML || '';
+  if (!html.trim()) return showToast('ไม่พบใบงานสำหรับพิมพ์');
+  const win = window.open('', '_blank', 'width=900,height=1200');
+  if (!win) return showToast('กรุณาอนุญาต popup เพื่อพิมพ์ใบงาน');
+  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Work Order</title><link rel="stylesheet" href="css/styles.css?v=20260717d"><link rel="stylesheet" href="css/orders.css?v=20260717d"><style>body{margin:0;background:#fff;padding:16px}.work-paper{max-width:190mm;margin:auto;background:#fff;border:0;border-radius:0}@page{size:A4;margin:12mm}</style></head><body>${html}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  win.document.close();
 }
 
 function openCostForOrder(id) {
@@ -351,11 +375,18 @@ function ensureOrderModals() {
   document.getElementById('orderForm').addEventListener('input', updateOrderSummary);
   document.getElementById('saveDraftBtn').addEventListener('click', () => submitOrder('draft'));
   document.getElementById('saveOrderBtn').addEventListener('click', () => submitOrder('order'));
-  document.getElementById('savePrintOrderBtn').addEventListener('click', () => { submitOrder('order'); if (state.selectedId) openWorkOrder(state.selectedId); });
-  document.getElementById('printWorkOrderBtn').addEventListener('click', () => window.print());
+  document.getElementById('savePrintOrderBtn').addEventListener('click', () => {
+    const order = submitOrder('order');
+    if (order) openWorkOrder(order.id);
+  });
+  document.getElementById('printWorkOrderBtn').addEventListener('click', printWorkOrder);
   document.getElementById('workPreparingBtn').addEventListener('click', () => { if (state.selectedId) { const updated = updateOrderStatus(state.selectedId, 'preparing'); processOrderStockDeduction(updated); state.orders = loadOrders(); renderOrders(); showToast('เปลี่ยนเป็นกำลังจัดแล้ว'); } });
   document.body.addEventListener('click', event => {
     if (event.target.matches('.order-overlay') || event.target.matches('.work-order-overlay') || event.target.closest('[data-close-order-modal]')) closeOrderModals();
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closeOrderModals(); });
+}
+
+function statusMeta(id, map) {
+  return map[id] || { label: id || 'ไม่ระบุ', tone: 'info' };
 }

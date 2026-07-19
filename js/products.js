@@ -1,7 +1,7 @@
-import { openCostCalculator } from './cost-calculator.js';
+import { openCostCalculator } from './cost-calculator.js?v=20260717c';
 import { addToCart } from './pos.js';
 import { productCategories } from './products-data.js';
-import { deleteProduct, findProduct, loadProducts, saveProduct } from './products-service.js';
+import { deleteProduct, findProduct, loadProducts, saveProduct } from './products-service.js?v=20260717c';
 import { renderIcon } from './icons.js';
 import { currency, showToast } from './utils.js';
 
@@ -145,9 +145,9 @@ function openProductEditor(product = {}) {
   form.elements.price.value = product.price || '';
   form.elements.cost.value = product.cost || '';
   form.elements.status.value = product.status || 'พร้อมขาย';
-  form.elements.imageDataUrl.value = product.imageDataUrl || '';
+  form.elements.imageDataUrl.value = getProductImageSrc(product);
   form.elements.stockTracking.checked = product.stockTracking !== false;
-  renderProductImagePreview(product.imageDataUrl || '');
+  renderProductImagePreview(getProductImageSrc(product));
   modal.hidden = false;
   form.elements.name.focus();
 }
@@ -179,5 +179,15 @@ function renderProductImagePreview(src) {
 }
 
 function productImage(product) {
-  return product.imageDataUrl ? `<img src="${product.imageDataUrl}" alt="${product.name}">` : renderIcon('flower');
+  const src = getProductImageSrc(product);
+  return src ? `<img src="${src}" alt="${escapeHtml(product.name || 'สินค้า')}">` : renderIcon('flower');
+}
+
+function getProductImageSrc(product = {}) {
+  const image = product.imageDataUrl || product.image || '';
+  return String(image).startsWith('data:image/') ? image : '';
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
 }

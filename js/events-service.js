@@ -1,4 +1,4 @@
-import { mockEventProjects, defaultEventSettings } from './events-data.js';
+import { defaultEventSettings } from './events-data.js';
 import { calculateEventGrossMargin, calculateEventGrossProfit } from './event-calculations.js';
 import { ensureEventPayments, getEventPaidAmount } from './event-payments.js';
 import { loadEventCosts } from './event-costs.js';
@@ -17,13 +17,12 @@ export function loadEvents() {
     ensureEventPayments(saved);
     return saved.map(hydrateEvent);
   }
-  saveEvents(mockEventProjects);
-  ensureEventPayments(mockEventProjects);
+  saveEvents([]);
   loadEventCosts();
   loadEventChecklists();
   loadEventTimelines();
   loadEventQuotations();
-  return mockEventProjects.map(hydrateEvent);
+  return [];
 }
 
 export function saveEvents(events) {
@@ -59,6 +58,14 @@ export function updateEventStatus(id, status) {
   event.updatedAt = new Date().toISOString();
   saveEvents(events);
   return event;
+}
+
+export function deleteEventProject(id) {
+  const next = loadEvents().filter(item => item.id !== id);
+  saveEvents(next);
+  window.dispatchEvent(new CustomEvent('events:updated', { detail: { id, deleted: true } }));
+  window.dispatchEvent(new CustomEvent('calendar:refresh'));
+  return next;
 }
 
 export function cancelEvent(id, reason = '') {

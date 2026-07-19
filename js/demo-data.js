@@ -258,9 +258,46 @@ export function resetToProductionData() {
 
 export function ensureProductionReady() {
   const ready = readStorage(STORAGE_KEYS.productionReady, null);
-  if (ready?.enabled && ready.version === PRODUCTION_EMPTY_VERSION) return { initialized: false };
+  if (ready?.enabled && ready.version === PRODUCTION_EMPTY_VERSION) {
+    sanitizeLegacySamples();
+    return { initialized: false };
+  }
   const result = resetToProductionData();
+  sanitizeLegacySamples();
   return { initialized: true, ...result };
+}
+
+function sanitizeLegacySamples() {
+  const demoId = /^(mock-\d+|event-[1-6]|event-mock-\d+|quotation-\d+|inv-mock-\d+|move-mock-\d+|waste-mock-\d+|inc-mock-\d+|exp-mock-\d+|sale-demo-\d+|template-demo-|p-0\d+)/;
+  const demoEventNames = new Set(['Wedding Garden Setup', 'Grand Opening Floral', 'Hotel Lobby Refresh', 'Engagement Dinner', 'Wedding Garden Floral Setup', 'Grand Opening Rose Cafe', 'Corporate Meeting Floral Stage', 'Graduation Floral Booth', 'Memorial Ceremony White Floral']);
+  [
+    STORAGE_KEYS.sales,
+    STORAGE_KEYS.products,
+    STORAGE_KEYS.orders,
+    STORAGE_KEYS.events,
+    STORAGE_KEYS.eventQuotations,
+    STORAGE_KEYS.eventCosts,
+    STORAGE_KEYS.eventPayments,
+    STORAGE_KEYS.eventChecklists,
+    STORAGE_KEYS.eventTimelines,
+    STORAGE_KEYS.inventoryItems,
+    STORAGE_KEYS.stockMovements,
+    STORAGE_KEYS.wasteItems,
+    STORAGE_KEYS.incomeTransactions,
+    STORAGE_KEYS.expenseTransactions,
+    STORAGE_KEYS.calendarEvents,
+    STORAGE_KEYS.costTemplates
+  ].forEach(key => {
+    const rows = readStorage(key, null);
+    if (!Array.isArray(rows)) return;
+    const next = rows.filter(item => {
+      const id = String(item?.id || '');
+      const eventId = String(item?.eventId || item?.sourceId || '');
+      const name = String(item?.projectName || item?.eventName || item?.name || item?.templateName || '');
+      return !demoId.test(id) && !demoId.test(eventId) && !demoEventNames.has(name);
+    });
+    if (next.length !== rows.length) writeStorage(key, next);
+  });
 }
 
 export function clearAllData({ keepBackups = true } = {}) {

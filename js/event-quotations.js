@@ -1,4 +1,4 @@
-import { defaultQuotationItems, mockEventProjects } from './events-data.js';
+import { defaultQuotationItems } from './events-data.js';
 import { calculateQuotationTotal } from './event-calculations.js';
 import { readStorage, writeStorage, STORAGE_KEYS } from './storage-registry.js';
 
@@ -6,17 +6,17 @@ const KEY = STORAGE_KEYS.eventQuotations;
 
 export function loadEventQuotations() {
   const saved = readStorage(KEY, null);
-  if (Array.isArray(saved) && saved.length) return saved;
-  const rows = mockEventProjects.map((event, index) => createQuotationFromEvent(event, `quotation-${index + 1}`));
-  writeStorage(KEY, rows);
-  return rows;
+  if (Array.isArray(saved)) return saved;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveEventQuotations = rows => writeStorage(KEY, rows);
 
-export function createQuotation(event, items = defaultQuotationItems) {
+export function createQuotation(event, items = null) {
+  if (!event) throw new Error('กรุณาเพิ่มงานจัดสถานที่ก่อนสร้างใบเสนอราคา');
   const rows = loadEventQuotations();
-  const quote = createQuotationFromEvent(event, crypto.randomUUID(), items);
+  const quote = createQuotationFromEvent(event, crypto.randomUUID(), Array.isArray(items) && items.length ? items : quotationItemsFromEvent(event));
   rows.unshift(quote);
   saveEventQuotations(rows);
   return quote;
@@ -65,4 +65,21 @@ export function createQuotationFromEvent(event, id = crypto.randomUUID(), items 
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
+}
+
+function quotationItemsFromEvent(event) {
+  const amount = Number(event.finalAmount || event.quotationAmount || 0);
+  const cost = Number(event.estimatedCost || 0);
+  return [{
+    id: crypto.randomUUID(),
+    category: 'งานจัดสถานที่',
+    itemName: event.projectName || 'งานจัดสถานที่',
+    description: event.description || event.venueName || '',
+    quantity: 1,
+    unit: 'งาน',
+    unitPrice: amount,
+    unitCost: cost,
+    totalPrice: amount,
+    totalCost: cost
+  }];
 }
