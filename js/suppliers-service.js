@@ -28,6 +28,15 @@ export function editSupplier(id, data) {
   return suppliers[index];
 }
 
+export function deleteSupplier(id) {
+  const suppliers = loadSuppliers();
+  const next = suppliers.filter(item => item.id !== id);
+  if (next.length === suppliers.length) throw new Error('ไม่พบ Supplier');
+  saveSuppliers(next);
+  syncSupplierDashboard();
+  return next;
+}
+
 export function searchSuppliers(query = '', suppliers = loadSuppliers()) {
   const text = query.trim().toLowerCase();
   if (!text) return suppliers;

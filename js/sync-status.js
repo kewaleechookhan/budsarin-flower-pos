@@ -26,10 +26,17 @@ export function initSyncStatus() {
 export function renderSyncStatus() {
   if (!root) return;
   const s = getSyncStatus();
+  const queueCount = s.pending + s.failed + s.conflict;
+  if (s.online || queueCount === 0) {
+    root.innerHTML = '';
+    root.hidden = true;
+    return;
+  }
+  root.hidden = false;
   root.innerHTML = `
     <div class="offline-banner ${s.online ? 'online' : 'offline'}" role="status">
       <strong>${s.online ? 'Online' : 'Offline Mode'}</strong>
-      <span>${s.pending + s.failed + s.conflict} รายการรอ sync</span>
+      <span>${queueCount} รายการรอ sync</span>
       <button class="soft-button" data-sync-now type="button">Sync</button>
       ${s.failed ? '<button class="soft-button" data-retry-sync type="button">Retry</button>' : ''}
       ${s.synced ? '<button class="soft-button" data-clear-synced type="button">Clear synced</button>' : ''}

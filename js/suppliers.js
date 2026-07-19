@@ -1,7 +1,7 @@
 import { createPurchaseOrder, loadPurchaseOrders, receivePOItems, recordSupplierPayment as recordPOPayment } from './purchase-orders.js';
 import { getPriceTrend } from './price-history.js';
 import { detectOverduePayables, recordSupplierPayment } from './supplier-payables.js';
-import { addSupplier, comparePrices, editSupplier, filterSuppliers, getSupplierSnapshot, loadSuppliers, searchSuppliers, supplierTypes, syncSupplierDashboard } from './suppliers-service.js';
+import { addSupplier, comparePrices, deleteSupplier, editSupplier, filterSuppliers, getSupplierSnapshot, loadSuppliers, searchSuppliers, supplierTypes, syncSupplierDashboard } from './suppliers-service.js?v=20260717b';
 import { poStatuses, supplierPaymentStatuses, supplierStatuses } from './suppliers-data.js';
 import { renderIcon } from './icons.js';
 import { currency, number, showToast, thaiDate } from './utils.js';
@@ -81,7 +81,7 @@ function renderList() {
       <label class="supplier-search">${renderIcon('search')}<input id="supplierSearch" type="search" value="${escapeHtml(state.query)}" placeholder="ค้นหาชื่อ เบอร์โทร สินค้าหลัก หรือผู้ติดต่อ"></label>
       <button class="primary-button" data-open-supplier type="button">${renderIcon('plus')}เพิ่ม Supplier</button>
     </section>
-    <section class="supplier-card-grid">${suppliers.map(supplierCard).join('')}</section>
+    <section class="supplier-card-grid">${suppliers.map(supplierCard).join('') || '<div class="empty-state">ยังไม่มี Supplier</div>'}</section>
   `;
 }
 
@@ -98,6 +98,8 @@ function supplierCard(supplier) {
     </div>
     <div class="supplier-actions">
       <button class="soft-button" data-detail-supplier="${supplier.id}" type="button">รายละเอียด</button>
+      <button class="soft-button" data-edit-supplier="${supplier.id}" type="button">แก้ไข</button>
+      <button class="danger-button" data-delete-supplier="${supplier.id}" type="button">ลบ</button>
       <button class="primary-button" data-po-supplier="${supplier.id}" type="button">สร้าง PO</button>
       <button class="soft-button" data-price-supplier="${supplier.id}" type="button">ประวัติราคา</button>
     </div>
@@ -143,6 +145,8 @@ function bindSupplierEvents() {
   document.getElementById('suppliersView').addEventListener('click', event => {
     const tab = event.target.closest('[data-supplier-tab]')?.dataset.supplierTab;
     const detail = event.target.closest('[data-detail-supplier]')?.dataset.detailSupplier;
+    const edit = event.target.closest('[data-edit-supplier]')?.dataset.editSupplier;
+    const remove = event.target.closest('[data-delete-supplier]')?.dataset.deleteSupplier;
     const poSupplier = event.target.closest('[data-po-supplier]')?.dataset.poSupplier;
     const receive = event.target.closest('[data-receive-po]')?.dataset.receivePo;
     const payPo = event.target.closest('[data-pay-po]')?.dataset.payPo;
@@ -151,12 +155,14 @@ function bindSupplierEvents() {
     if (event.target.closest('[data-open-supplier]') || event.target.id === 'newSupplierBtn') openSupplierModal();
     if (event.target.closest('[data-open-po]') || event.target.id === 'newPOBtn') openPOModal(poSupplier || state.selectedSupplierId);
     if (detail) openSupplierDetail(detail);
+    if (edit) openSupplierModal(edit);
+    if (remove) removeSupplier(remove);
     if (poSupplier) openPOModal(poSupplier);
     if (event.target.closest('[data-price-supplier]')) { state.tab = 'prices'; renderSuppliers(); }
     if (receive) receivePO(receive);
     if (payPo) payPO(payPo);
     if (payPayable) paySupplierPayable(payPayable);
-    if (event.target.id === 'supplierExportBtn') showToast('Export Supplier จะเพิ่มใน Phase ถัดไป');
+    if (event.target.id === 'supplierExportBtn') exportSuppliersCSV();
     if (event.target.id === 'compareBtn') { state.compareItem = document.getElementById('compareItemInput').value || state.compareItem; renderSuppliers(); }
   });
   document.getElementById('suppliersView').addEventListener('input', event => {
@@ -167,7 +173,7 @@ function bindSupplierEvents() {
 function ensureSupplierModals() {
   if (document.getElementById('supplierModal')) return;
   document.body.insertAdjacentHTML('beforeend', `
-    <div class="modal-overlay" id="supplierModal" hidden><section class="modal supplier-modal"><button class="icon-button modal-close" data-close-supplier-modal type="button">${renderIcon('x')}</button><p class="eyebrow">Supplier</p><h3 id="supplierModalTitle">เพิ่ม Supplier</h3><form id="supplierForm"><label>ชื่อ Supplier<input name="supplierName" required></label><label>ประเภท<select name="supplierType">${Object.entries(supplierTypes).map(([id, label]) => `<option value="${id}">${label}</option>`).join('')}</select></label><label>ผู้ติดต่อ<input name="contactPerson"></label><label>โทร<input name="phone"></label><label>LINE<input name="lineId"></label><label>จังหวัด<input name="province"></label><label>Credit Limit<input name="creditLimit" type="number" min="0"></label><label>Credit Days<input name="creditDays" type="number" min="0"></label><label>Rating<input name="rating" type="number" min="1" max="5" step=".1" value="4"></label><label>สถานะ<select name="status">${Object.entries(supplierStatuses).map(([id, s]) => `<option value="${id}">${s.label}</option>`).join('')}</select></label><label class="span-2">สินค้าหลัก<input name="mainProducts"></label><label class="span-2">หมายเหตุ<textarea name="note" rows="2"></textarea></label><p class="form-error" id="supplierFormError"></p><button class="primary-button" type="submit">${renderIcon('save')}บันทึก</button></form></section></div>
+    <div class="modal-overlay" id="supplierModal" hidden><section class="modal supplier-modal"><button class="icon-button modal-close" data-close-supplier-modal type="button">${renderIcon('x')}</button><p class="eyebrow">Supplier</p><h3 id="supplierModalTitle">เพิ่ม Supplier</h3><form id="supplierForm"><input name="id" type="hidden"><label>ชื่อ Supplier<input name="supplierName" required></label><label>ประเภท<select name="supplierType">${Object.entries(supplierTypes).map(([id, label]) => `<option value="${id}">${label}</option>`).join('')}</select></label><label>ผู้ติดต่อ<input name="contactPerson"></label><label>โทร<input name="phone"></label><label>LINE<input name="lineId"></label><label>จังหวัด<input name="province"></label><label>Credit Limit<input name="creditLimit" type="number" min="0"></label><label>Credit Days<input name="creditDays" type="number" min="0"></label><label>Rating<input name="rating" type="number" min="1" max="5" step=".1" value="4"></label><label>สถานะ<select name="status">${Object.entries(supplierStatuses).map(([id, s]) => `<option value="${id}">${s.label}</option>`).join('')}</select></label><label class="span-2">สินค้าหลัก<input name="mainProducts"></label><label class="span-2">หมายเหตุ<textarea name="note" rows="2"></textarea></label><p class="form-error" id="supplierFormError"></p><button class="primary-button" type="submit">${renderIcon('save')}บันทึก</button></form></section></div>
     <div class="modal-overlay" id="poModal" hidden><section class="modal supplier-modal"><button class="icon-button modal-close" data-close-supplier-modal type="button">${renderIcon('x')}</button><p class="eyebrow">Purchase Order</p><h3>สร้าง Purchase Order</h3><form id="poForm"><label>Supplier<select name="supplierId"></select></label><label>วันที่รับสินค้า<input name="expectedReceiveDate" type="date"></label><label>สินค้า<input name="itemName" value="กุหลาบชมพู"></label><label>หมวด<input name="category" value="ดอกไม้สด"></label><label>จำนวน<input name="quantity" type="number" min="1" value="100"></label><label>หน่วย<input name="unit" value="ดอก"></label><label>ราคาต่อหน่วย<input name="unitCost" type="number" min="0" value="18"></label><label>ค่าขนส่ง<input name="shippingFee" type="number" min="0" value="0"></label><label>ชำระแล้ว<input name="paidAmount" type="number" min="0" value="0"></label><label class="span-2">หมายเหตุ<textarea name="note" rows="2"></textarea></label><button class="primary-button" type="submit">${renderIcon('save')}สร้าง PO</button></form></section></div>
     <div class="modal-overlay" id="supplierDetailModal" hidden><section class="modal supplier-detail-modal"><button class="icon-button modal-close" data-close-supplier-modal type="button">${renderIcon('x')}</button><div id="supplierDetailBody"></div></section></div>
   `);
@@ -178,13 +184,25 @@ function ensureSupplierModals() {
   document.getElementById('poForm').addEventListener('submit', submitPO);
 }
 
-function openSupplierModal() {
-  document.getElementById('supplierForm').reset();
+function openSupplierModal(id = '') {
+  const form = document.getElementById('supplierForm');
+  form.reset();
+  form.elements.id.value = '';
+  document.getElementById('supplierModalTitle').textContent = 'เพิ่ม Supplier';
+  if (id) {
+    const supplier = loadSuppliers().find(item => item.id === id);
+    if (!supplier) return showToast('ไม่พบ Supplier');
+    document.getElementById('supplierModalTitle').textContent = 'แก้ไข Supplier';
+    Object.entries(supplier).forEach(([key, value]) => {
+      if (form.elements[key]) form.elements[key].value = value ?? '';
+    });
+  }
   document.getElementById('supplierModal').hidden = false;
 }
 
 function openPOModal(supplierId = '') {
   const suppliers = loadSuppliers();
+  if (!suppliers.length) return showToast('กรุณาเพิ่ม Supplier ก่อนสร้าง PO');
   document.querySelector('#poForm select[name="supplierId"]').innerHTML = suppliers.map(item => `<option value="${item.id}">${item.supplierName}</option>`).join('');
   if (supplierId) document.querySelector('#poForm select[name="supplierId"]').value = supplierId;
   document.querySelector('#poForm input[name="expectedReceiveDate"]').value = new Date().toISOString().slice(0, 10);
@@ -195,7 +213,7 @@ function openSupplierDetail(id) {
   const supplier = loadSuppliers().find(item => item.id === id);
   if (!supplier) return;
   const pos = loadPurchaseOrders().filter(po => po.supplierId === id);
-  document.getElementById('supplierDetailBody').innerHTML = `<p class="eyebrow">${supplier.supplierCode}</p><h3>${supplier.supplierName}</h3><div class="supplier-meta detail">${Object.entries({ ประเภท: supplierTypes[supplier.supplierType], ผู้ติดต่อ: supplier.contactPerson, โทร: supplier.phone, LINE: supplier.lineId, เครดิต: `${currency(supplier.creditLimit)} / ${supplier.creditDays} วัน`, บัญชี: `${supplier.bankName} ${supplier.bankAccountNo}`, สินค้าหลัก: supplier.mainProducts, เจ้าหนี้: currency(calculateSupplierBalance(supplier.id)) }).map(([k, v]) => `<div><span>${k}</span><strong>${v}</strong></div>`).join('')}</div><h4>Purchase Orders</h4><div class="supplier-table">${pos.map(poRow).join('') || '<div class="empty-state">ยังไม่มี PO</div>'}</div><div class="supplier-actions"><button class="primary-button" data-po-supplier="${supplier.id}" type="button">สร้าง PO</button><button class="soft-button" data-close-supplier-modal type="button">ปิด</button></div>`;
+  document.getElementById('supplierDetailBody').innerHTML = `<p class="eyebrow">${supplier.supplierCode}</p><h3>${supplier.supplierName}</h3><div class="supplier-meta detail">${Object.entries({ ประเภท: supplierTypes[supplier.supplierType], ผู้ติดต่อ: supplier.contactPerson, โทร: supplier.phone, LINE: supplier.lineId, เครดิต: `${currency(supplier.creditLimit)} / ${supplier.creditDays} วัน`, บัญชี: `${supplier.bankName} ${supplier.bankAccountNo}`, สินค้าหลัก: supplier.mainProducts, เจ้าหนี้: currency(calculateSupplierBalance(supplier.id)) }).map(([k, v]) => `<div><span>${k}</span><strong>${v}</strong></div>`).join('')}</div><h4>Purchase Orders</h4><div class="supplier-table">${pos.map(poRow).join('') || '<div class="empty-state">ยังไม่มี PO</div>'}</div><div class="supplier-actions"><button class="primary-button" data-po-supplier="${supplier.id}" type="button">สร้าง PO</button><button class="soft-button" data-edit-supplier="${supplier.id}" type="button">แก้ไข</button><button class="danger-button" data-delete-supplier="${supplier.id}" type="button">ลบ</button><button class="soft-button" data-close-supplier-modal type="button">ปิด</button></div>`;
   document.getElementById('supplierDetailModal').hidden = false;
 }
 
@@ -203,16 +221,51 @@ function submitSupplier(event) {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(event.currentTarget).entries());
   if (!data.supplierName.trim()) return document.getElementById('supplierFormError').textContent = 'กรุณากรอกชื่อ Supplier';
-  addSupplier(data);
+  const id = data.id;
+  delete data.id;
+  if (id) editSupplier(id, data);
+  else addSupplier(data);
   closeSupplierModals();
-  showToast('บันทึก Supplier แล้ว');
+  showToast(id ? 'แก้ไข Supplier แล้ว' : 'บันทึก Supplier แล้ว');
   renderSuppliers();
+}
+
+function removeSupplier(id) {
+  const supplier = loadSuppliers().find(item => item.id === id);
+  if (!supplier) return showToast('ไม่พบ Supplier');
+  if (!confirm(`ลบ Supplier "${supplier.supplierName}" หรือไม่?`)) return;
+  try {
+    deleteSupplier(id);
+    closeSupplierModals();
+    showToast('ลบ Supplier แล้ว');
+    renderSuppliers();
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+function exportSuppliersCSV() {
+  const rows = loadSuppliers().map(item => ({
+    code: item.supplierCode,
+    name: item.supplierName,
+    type: supplierTypes[item.supplierType] || item.supplierType,
+    contact: item.contactPerson,
+    phone: item.phone,
+    line: item.lineId,
+    creditLimit: item.creditLimit,
+    creditDays: item.creditDays,
+    products: item.mainProducts,
+    status: supplierStatuses[item.status]?.label || item.status
+  }));
+  downloadCSV(`budsarin-suppliers-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+  showToast('ดาวน์โหลดไฟล์ Supplier CSV แล้ว');
 }
 
 function submitPO(event) {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(event.currentTarget).entries());
   const supplier = loadSuppliers().find(item => item.id === data.supplierId);
+  if (!supplier) return showToast('กรุณาเลือก Supplier ก่อนสร้าง PO');
   const qty = Number(data.quantity) || 0;
   const cost = Number(data.unitCost) || 0;
   createPurchaseOrder({
@@ -294,4 +347,21 @@ function statusLabel(status) {
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
+}
+
+function downloadCSV(filename, rows) {
+  if (!rows.length) return showToast('ยังไม่มีข้อมูลสำหรับ Export');
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(','), ...rows.map(row => headers.map(header => csvCell(row[header])).join(','))].join('\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value = '') {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }
