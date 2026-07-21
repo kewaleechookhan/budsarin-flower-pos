@@ -25,6 +25,7 @@ function renderShell(ui) {
   document.getElementById('mainNav').innerHTML = MENU_ITEMS.map(([id, th, en, icon]) => navButton(id, th, en, icon)).join('');
   document.getElementById('mobileNav').innerHTML = MENU_ITEMS.map(([id, th, , icon]) => `<button data-route="${id}" type="button">${renderIcon(icon)}<span>${th}</span></button>`).join('');
   document.getElementById('quickAddMenu').innerHTML = QUICK_ADD_ITEMS.map(([id, label]) => `<button type="button" role="menuitem" data-action="${id}">${label}</button>`).join('');
+  document.getElementById('quickAddMenu').classList.add('quick-add-floating');
   const select = document.querySelector('#quickForm select[name="type"]');
   select.innerHTML = QUICK_ADD_ITEMS.map(([id, label]) => `<option value="${id}">${label}</option>`).join('');
   document.getElementById('scheduleFilter').innerHTML = '<option value="all">ทุกสถานะ</option>' + Object.entries(STATUS).map(([id, s]) => `<option value="${id}">${s.label}</option>`).join('');
@@ -267,8 +268,21 @@ function toggleQuickAdd(event) {
   event.stopPropagation();
   const menu = document.getElementById('quickAddMenu');
   const btn = document.getElementById('quickAddBtn');
-  menu.classList.toggle('open');
-  btn.setAttribute('aria-expanded', menu.classList.contains('open'));
+  const willOpen = !menu.classList.contains('open');
+  if (willOpen) positionQuickAddMenu(btn, menu);
+  menu.classList.toggle('open', willOpen);
+  btn.setAttribute('aria-expanded', String(willOpen));
+}
+
+function positionQuickAddMenu(btn, menu) {
+  const rect = btn.getBoundingClientRect();
+  const gap = 8;
+  const margin = 12;
+  const menuWidth = Math.min(280, window.innerWidth - margin * 2);
+  const left = Math.max(margin, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - margin));
+  const top = Math.min(rect.bottom + gap, window.innerHeight - 96);
+  menu.style.setProperty('--quick-add-top', `${Math.max(margin, top)}px`);
+  menu.style.setProperty('--quick-add-right', `${Math.max(margin, window.innerWidth - left - menuWidth)}px`);
 }
 
 function toggleNotifications(ui) {
@@ -298,9 +312,17 @@ function closeFloating(event) {
 
 function openModal(action) {
   document.querySelector('#quickForm select[name="type"]').value = action;
-  document.getElementById('modalOverlay').hidden = false;
-  document.querySelector('#quickForm input[name="customer"]').focus();
   closeFloating();
+  const overlay = document.getElementById('modalOverlay');
+  overlay.hidden = false;
+  requestAnimationFrame(() => {
+    const firstInput = document.querySelector('#quickForm input[name="customer"]');
+    try {
+      firstInput.focus({ preventScroll: true });
+    } catch {
+      firstInput.focus();
+    }
+  });
 }
 
 function closeModal() {
