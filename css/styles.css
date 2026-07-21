@@ -438,6 +438,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding: 8px;
 }
 
+.dropdown-menu.quick-add-floating {
+  position: fixed;
+  top: var(--quick-add-top, 96px);
+  right: var(--quick-add-right, 18px);
+  z-index: 1200;
+  width: min(280px, calc(100vw - 24px));
+  max-height: min(420px, calc(100dvh - var(--quick-add-top, 96px) - 14px));
+  overflow: auto;
+}
+
 .dropdown-menu.open {
   display: grid;
 }
@@ -779,6 +789,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background: rgba(48, 38, 34, .48);
 }
 
+.modal-overlay.quick-add-overlay {
+  z-index: 1300;
+  align-items: center;
+  justify-items: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+}
+
 .modal {
   position: relative;
   width: min(520px, 100%);
@@ -789,6 +806,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   border-radius: var(--radius);
   background: var(--white);
   box-shadow: var(--shadow);
+}
+
+.quick-add-overlay .modal {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
 }
 
 .modal-close {
