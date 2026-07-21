@@ -6,7 +6,7 @@ import { loadState, saveState } from './storage.js';
 
 const SUPPLIER_KEY = 'budsarin_suppliers';
 
-export const loadSuppliers = () => loadArray(SUPPLIER_KEY, mockSuppliers);
+export const loadSuppliers = () => loadArray(SUPPLIER_KEY, []);
 export const saveSuppliers = suppliers => localStorage.setItem(SUPPLIER_KEY, JSON.stringify(suppliers));
 
 export function addSupplier(data) {
@@ -149,6 +149,6 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  localStorage.setItem(key, JSON.stringify([]));
+  return [];
 }

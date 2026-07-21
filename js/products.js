@@ -1,7 +1,7 @@
-import { openCostCalculator } from './cost-calculator.js?v=20260719a';
+import { openCostCalculator } from './cost-calculator.js?v=20260719b';
 import { addToCart } from './pos.js';
 import { productCategories } from './products-data.js';
-import { deleteProduct, findProduct, loadProducts, saveProduct } from './products-service.js?v=20260719a';
+import { deleteProduct, findProduct, loadProducts, saveProduct } from './products-service.js?v=20260719b';
 import { renderIcon } from './icons.js';
 import { currency, showToast } from './utils.js';
 

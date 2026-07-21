@@ -1,6 +1,6 @@
 import { mockCustomers, mockPurchaseHistory } from './customers-data.js';
-import { getUpcomingImportantDates, loadImportantDates, saveImportantDates } from './important-dates.js?v=20260713b';
-import { detectOverdueFollowUps, getTodayFollowUps, loadFollowUps, saveFollowUps } from './customer-followups.js?v=20260713b';
+import { getUpcomingImportantDates, loadImportantDates, saveImportantDates } from './important-dates.js?v=20260719b';
+import { detectOverdueFollowUps, getTodayFollowUps, loadFollowUps, saveFollowUps } from './customer-followups.js?v=20260719b';
 import { buildCustomerGroups, detectInactiveCustomers, detectVIPCustomers, segmentCustomer } from './customer-segments.js';
 import { queueWhenOffline } from './offline-queue.js';
 import { loadPosState } from './storage.js';
@@ -10,9 +10,9 @@ const CUSTOMER_KEY = 'budsarin_customers';
 const HISTORY_KEY = 'budsarin_customer_purchase_history';
 const ORDERS_KEY = 'budsarin_orders';
 
-export const loadCustomers = () => loadArray(CUSTOMER_KEY, mockCustomers);
+export const loadCustomers = () => loadArray(CUSTOMER_KEY, []);
 export const saveCustomers = customers => localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customers));
-export const loadPurchaseHistory = () => loadArray(HISTORY_KEY, mockPurchaseHistory);
+export const loadPurchaseHistory = () => loadArray(HISTORY_KEY, []);
 export const savePurchaseHistory = history => localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 
 export function addCustomer(data) {
@@ -242,6 +242,6 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  localStorage.setItem(key, JSON.stringify([]));
+  return [];
 }

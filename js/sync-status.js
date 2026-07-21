@@ -1,4 +1,4 @@
-import { clearSyncedActions, getSyncStatus, processOfflineQueue, retryFailedSync } from './offline-queue.js?v=20260713g';
+import { clearSyncedActions, getSyncStatus, processOfflineQueue, retryFailedSync } from './offline-queue.js?v=20260719b';
 import { showToast } from './utils.js';
 
 let root;

@@ -11,10 +11,16 @@ const AR_KEY = 'budsarin_accounts_receivable';
 const AP_KEY = 'budsarin_accounts_payable';
 const ORDERS_KEY = 'budsarin_orders';
 
-export const loadIncome = () => loadArray(INCOME_KEY, mockIncomeTransactions);
-export const loadExpenses = () => loadArray(EXPENSE_KEY, mockExpenseTransactions);
-export const saveIncome = income => localStorage.setItem(INCOME_KEY, JSON.stringify(income));
-export const saveExpenses = expenses => localStorage.setItem(EXPENSE_KEY, JSON.stringify(expenses));
+export const loadIncome = () => loadArray(INCOME_KEY, []);
+export const loadExpenses = () => loadArray(EXPENSE_KEY, []);
+export const saveIncome = income => {
+  localStorage.setItem(INCOME_KEY, JSON.stringify(income));
+  window.dispatchEvent(new CustomEvent('finance:updated', { detail: { type: 'income', rows: income } }));
+};
+export const saveExpenses = expenses => {
+  localStorage.setItem(EXPENSE_KEY, JSON.stringify(expenses));
+  window.dispatchEvent(new CustomEvent('finance:updated', { detail: { type: 'expense', rows: expenses } }));
+};
 
 export function loadFinanceSettings() {
   try {
@@ -335,8 +341,8 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  localStorage.setItem(key, JSON.stringify([]));
+  return [];
 }
 
 function loadOrders() {

@@ -125,8 +125,8 @@ export const mockWasteItems = [
   createdAt: `${dateOf(row[4])}T12:00:00.000Z`
 }));
 
-export const mockReportSettings = {
+export const defaultReportSettings = {
   cacheReports: true,
   defaultDateRange: 'thisMonth',
-  showMockFallbackBadge: true
+  showMockFallbackBadge: false
 };

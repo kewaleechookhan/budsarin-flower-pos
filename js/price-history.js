@@ -1,8 +1,6 @@
-import { mockPriceHistory } from './suppliers-data.js';
-
 const PRICE_KEY = 'budsarin_supplier_price_history';
 
-export const loadPriceHistory = () => loadArray(PRICE_KEY, mockPriceHistory);
+export const loadPriceHistory = () => loadArray(PRICE_KEY, []);
 export const savePriceHistory = items => localStorage.setItem(PRICE_KEY, JSON.stringify(items));
 
 export function recordPriceHistory(po) {
@@ -77,6 +75,7 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  const rows = fallback || [];
+  localStorage.setItem(key, JSON.stringify(rows));
+  return structuredClone(rows);
 }

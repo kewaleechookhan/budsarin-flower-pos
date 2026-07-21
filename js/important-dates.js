@@ -2,7 +2,7 @@ import { mockImportantDates } from './customers-data.js';
 
 const IMPORTANT_KEY = 'budsarin_customer_important_dates';
 
-export const loadImportantDates = () => loadArray(IMPORTANT_KEY, mockImportantDates);
+export const loadImportantDates = () => loadArray(IMPORTANT_KEY, []);
 export const saveImportantDates = dates => localStorage.setItem(IMPORTANT_KEY, JSON.stringify(dates));
 
 export function addImportantDate(data) {
@@ -53,6 +53,6 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  localStorage.setItem(key, JSON.stringify([]));
+  return [];
 }

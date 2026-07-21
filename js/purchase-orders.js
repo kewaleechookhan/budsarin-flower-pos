@@ -1,13 +1,12 @@
 import { addExpense } from './finance-service.js';
 import { recordPriceHistory } from './price-history.js';
 import { createSupplierPayable } from './supplier-payables.js';
-import { mockPurchaseOrders } from './suppliers-data.js';
 
 const PO_KEY = 'budsarin_purchase_orders';
 const INVENTORY_KEY = 'budsarin_inventory_items';
 const MOVEMENT_KEY = 'budsarin_stock_movements';
 
-export const loadPurchaseOrders = () => loadArray(PO_KEY, mockPurchaseOrders);
+export const loadPurchaseOrders = () => loadArray(PO_KEY, []);
 export const savePurchaseOrders = items => localStorage.setItem(PO_KEY, JSON.stringify(items));
 
 export function calculatePOSubtotal(items = []) {
@@ -175,6 +174,7 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  const rows = fallback || [];
+  localStorage.setItem(key, JSON.stringify(rows));
+  return structuredClone(rows);
 }

@@ -12,24 +12,24 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260719a">
-  <link rel="stylesheet" href="css/responsive.css?v=20260719a">
-  <link rel="stylesheet" href="css/pos.css?v=20260719a">
-  <link rel="stylesheet" href="css/orders.css?v=20260719a">
-  <link rel="stylesheet" href="css/products.css?v=20260719a">
-  <link rel="stylesheet" href="css/cost-calculator.css">
-  <link rel="stylesheet" href="css/events.css?v=20260719a">
-  <link rel="stylesheet" href="css/inventory.css">
-  <link rel="stylesheet" href="css/finance.css">
-  <link rel="stylesheet" href="css/suppliers.css?v=20260719a">
-  <link rel="stylesheet" href="css/customers.css">
-  <link rel="stylesheet" href="css/reports.css">
-  <link rel="stylesheet" href="css/settings.css">
-  <link rel="stylesheet" href="css/calendar.css">
-  <link rel="stylesheet" href="css/production.css?v=20260719a">
-  <link rel="stylesheet" href="css/pwa.css?v=20260719a">
-  <link rel="stylesheet" href="css/mobile-polish.css?v=20260719a">
-  <link rel="stylesheet" href="css/receipt-print.css">
+  <link rel="stylesheet" href="css/styles.css?v=20260719b">
+  <link rel="stylesheet" href="css/responsive.css?v=20260719b">
+  <link rel="stylesheet" href="css/pos.css?v=20260719b">
+  <link rel="stylesheet" href="css/orders.css?v=20260719b">
+  <link rel="stylesheet" href="css/products.css?v=20260719b">
+  <link rel="stylesheet" href="css/cost-calculator.css?v=20260719b">
+  <link rel="stylesheet" href="css/events.css?v=20260719b">
+  <link rel="stylesheet" href="css/inventory.css?v=20260719b">
+  <link rel="stylesheet" href="css/finance.css?v=20260719b">
+  <link rel="stylesheet" href="css/suppliers.css?v=20260719b">
+  <link rel="stylesheet" href="css/customers.css?v=20260719b">
+  <link rel="stylesheet" href="css/reports.css?v=20260719b">
+  <link rel="stylesheet" href="css/settings.css?v=20260719b">
+  <link rel="stylesheet" href="css/calendar.css?v=20260719b">
+  <link rel="stylesheet" href="css/production.css?v=20260719b">
+  <link rel="stylesheet" href="css/pwa.css?v=20260719b">
+  <link rel="stylesheet" href="css/mobile-polish.css?v=20260719b">
+  <link rel="stylesheet" href="css/receipt-print.css?v=20260719b">
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -178,7 +178,7 @@
           'caches' in window ? caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))) : Promise.resolve()
         ]).finally(() => {
           params.delete('reset-cache');
-          params.set('v', '20260719a');
+          params.set('v', '20260719b');
           window.location.replace(`${window.location.pathname}?${params.toString()}`);
         });
         return;
@@ -193,6 +193,6 @@
       }
     })();
   </script>
-  <script type="module" src="js/app.js?v=20260719a"></script>
+  <script type="module" src="js/app.js?v=20260719b"></script>
 </body>
 </html>

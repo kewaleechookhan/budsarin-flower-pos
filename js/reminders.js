@@ -1,10 +1,9 @@
 import { loadCalendarEvents } from './calendar-service.js';
-import { mockReminders } from './calendar-data.js';
 
 const KEY = 'budsarin_reminders';
 
 export function loadReminders() {
-  return loadArray(KEY, mockReminders);
+  return loadArray(KEY, []);
 }
 
 export function saveReminders(reminders) {

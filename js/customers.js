@@ -1,9 +1,9 @@
-import { createFollowUp, getUpcomingFollowUps, markFollowUpDone } from './customer-followups.js?v=20260713b';
+import { createFollowUp, getUpcomingFollowUps, markFollowUpDone } from './customer-followups.js?v=20260719b';
 import { customerSegments, customerStatuses, customerTypes, dateTypes, followUpStatuses, followUpTypes } from './customers-data.js';
-import { addCustomer, calculateCustomerPurchaseSummary, deleteCustomer, editCustomer, getCustomerSnapshot, loadCustomers, loadPurchaseHistory, searchCustomers, syncAllCustomerSources, syncCustomerDashboard } from './customers-service.js?v=20260713b';
-import { addImportantDate, generateImportantDateReminder, getUpcomingImportantDates, markReminderDone } from './important-dates.js?v=20260713b';
+import { addCustomer, calculateCustomerPurchaseSummary, deleteCustomer, editCustomer, getCustomerSnapshot, loadCustomers, loadPurchaseHistory, searchCustomers, syncAllCustomerSources, syncCustomerDashboard } from './customers-service.js?v=20260719b';
+import { addImportantDate, generateImportantDateReminder, getUpcomingImportantDates, markReminderDone } from './important-dates.js?v=20260719b';
 import { renderMessageTemplate } from './message-templates.js';
-import { renderIcon } from './icons.js?v=20260713b';
+import { renderIcon } from './icons.js?v=20260719b';
 import { currency, number, showToast, thaiDate } from './utils.js';
 
 const state = { tab: 'overview', query: '', selectedCustomerId: '', snapshot: null };

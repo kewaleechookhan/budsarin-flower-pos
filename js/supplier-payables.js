@@ -1,9 +1,9 @@
 import { addExpense } from './finance-service.js';
-import { mockSupplierPayables, supplierTypes } from './suppliers-data.js';
+import { supplierTypes } from './suppliers-data.js';
 
 const PAYABLE_KEY = 'budsarin_supplier_payables';
 
-export const loadSupplierPayables = () => loadArray(PAYABLE_KEY, mockSupplierPayables);
+export const loadSupplierPayables = () => loadArray(PAYABLE_KEY, []);
 export const saveSupplierPayables = items => localStorage.setItem(PAYABLE_KEY, JSON.stringify(items));
 
 export function createSupplierPayable(po) {
@@ -87,6 +87,7 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  const rows = fallback || [];
+  localStorage.setItem(key, JSON.stringify(rows));
+  return structuredClone(rows);
 }

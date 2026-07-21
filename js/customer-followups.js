@@ -2,7 +2,7 @@ import { mockFollowUps } from './customers-data.js';
 
 const FOLLOW_KEY = 'budsarin_customer_followups';
 
-export const loadFollowUps = () => loadArray(FOLLOW_KEY, mockFollowUps);
+export const loadFollowUps = () => loadArray(FOLLOW_KEY, []);
 export const saveFollowUps = items => localStorage.setItem(FOLLOW_KEY, JSON.stringify(items));
 
 export function createFollowUp(data) {
@@ -50,6 +50,6 @@ function loadArray(key, fallback) {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) return saved;
   } catch {}
-  localStorage.setItem(key, JSON.stringify(fallback));
-  return structuredClone(fallback);
+  localStorage.setItem(key, JSON.stringify([]));
+  return [];
 }

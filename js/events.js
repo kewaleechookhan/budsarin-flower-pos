@@ -1,13 +1,13 @@
 import { eventCostCategories, eventPaymentStatuses, eventTypes, projectStatuses, quotationCategories } from './events-data.js';
-import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, deleteEventProject, loadEventSettings, saveEventSettings } from './events-service.js?v=20260719a';
-import { loadEventQuotations, createQuotation, updateQuotationStatus, deleteQuotation } from './event-quotations.js?v=20260719a';
-import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js?v=20260719a';
-import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js?v=20260719a';
+import { loadEvents, saveEventProject, getEventKpis, getUpcomingEvents, updateEventStatus, deleteEventProject, loadEventSettings, saveEventSettings } from './events-service.js?v=20260719b';
+import { loadEventQuotations, createQuotation, updateQuotationStatus, deleteQuotation } from './event-quotations.js?v=20260719b';
+import { loadEventPayments, recordEventPayment, detectOverdueEventPayments } from './event-payments.js?v=20260719b';
+import { addEventCost, deleteEventCost, loadEventCosts } from './event-costs.js?v=20260719b';
 import { calculateChecklistProgress, loadEventChecklists, toggleChecklistTask } from './event-checklists.js';
 import { addTimelineItem, loadEventTimelines, updateTimelineStatus } from './event-timeline.js';
 import { renderIcon } from './icons.js';
 import { loadBrandSettings, loadStoreProfile } from './settings-service.js';
-import { syncAllCalendarEvents } from './calendar-sync.js?v=20260719a';
+import { syncAllCalendarEvents } from './calendar-sync.js?v=20260719b';
 import { currency, number, showToast, thaiDate } from './utils.js';
 
 const state = { tab: 'overview', query: '', status: 'all', selectedEventId: null };
@@ -202,6 +202,18 @@ function bindEvents() {
   });
   document.getElementById('eventsView').addEventListener('input', event => {
     if (event.target.id === 'eventSearch') { state.query = event.target.value; renderEvents(); }
+    if (event.target.matches('#eventProjectForm [name="eventDate"]')) {
+      const form = event.target.form;
+      const nextDate = event.target.value;
+      ['setupDate', 'teardownDate'].forEach(name => {
+        const field = form?.elements[name];
+        if (!field || field.dataset.touched === '1') return;
+        field.value = nextDate;
+      });
+    }
+    if (event.target.matches('#eventProjectForm [name="setupDate"], #eventProjectForm [name="teardownDate"]')) {
+      event.target.dataset.touched = '1';
+    }
   });
   document.getElementById('eventsView').addEventListener('change', event => {
     if (event.target.id === 'eventStatusFilter') { state.status = event.target.value; renderEvents(); }
@@ -209,7 +221,7 @@ function bindEvents() {
   });
   document.getElementById('eventsView').addEventListener('submit', event => {
     event.preventDefault();
-    if (event.target.id === 'eventProjectForm') {
+    if (event.target.matches('#eventProjectForm')) {
       try {
         const mode = event.submitter?.dataset.mode || 'project';
         const savedEvent = saveEventProject(Object.fromEntries(new FormData(event.target).entries()), mode);
@@ -234,8 +246,8 @@ function bindEvents() {
         showToast(error.message);
       }
     }
-    if (event.target.id === 'eventCostForm') { addEventCost(Object.fromEntries(new FormData(event.target).entries()), true); showToast('บันทึกต้นทุนและ sync Finance แล้ว'); renderEvents(); }
-    if (event.target.id === 'eventSettingsForm') { saveEventSettings(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Event Settings แล้ว'); renderEvents(); }
+    if (event.target.matches('#eventCostForm')) { addEventCost(Object.fromEntries(new FormData(event.target).entries()), true); showToast('บันทึกต้นทุนและ sync Finance แล้ว'); renderEvents(); }
+    if (event.target.matches('#eventSettingsForm')) { saveEventSettings(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Event Settings แล้ว'); renderEvents(); }
   });
 }
 
@@ -291,7 +303,7 @@ function printEventDocument() {
   if (!documentHtml) return showToast('ไม่พบเอกสารสำหรับพิมพ์');
   const win = window.open('', '_blank', 'width=900,height=1200');
   if (!win) return showToast('กรุณาอนุญาต popup เพื่อพิมพ์เอกสาร');
-  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Document</title><link rel="stylesheet" href="css/styles.css?v=20260719a"><link rel="stylesheet" href="css/events.css?v=20260719a"><link rel="stylesheet" href="css/receipt-print.css?v=20260719a"><style>body{margin:0;background:#fff;padding:16px}.event-document{margin:auto;box-shadow:none}@page{size:A4;margin:12mm}</style></head><body>${documentHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+  win.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>Budsarin Document</title><link rel="stylesheet" href="css/styles.css?v=20260719b"><link rel="stylesheet" href="css/events.css?v=20260719b"><link rel="stylesheet" href="css/receipt-print.css?v=20260719b"><style>body{margin:0;background:#fff;padding:16px}.event-document{margin:auto;box-shadow:none}@page{size:A4;margin:12mm}</style></head><body>${documentHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
   win.document.close();
 }
 

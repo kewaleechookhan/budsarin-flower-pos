@@ -1,9 +1,5 @@
-import { mockCustomers, mockFollowUps, mockImportantDates } from './customers-data.js';
-import { defaultFinanceSettings, mockExpenseTransactions, mockIncomeTransactions } from './finance-data.js';
-import { mockData } from './mock-data.js';
-import { mockOrders } from './orders-data.js';
-import { mockPurchaseOrders, mockSuppliers } from './suppliers-data.js';
-import { mockEvents, mockInventoryItems, mockReportSettings, mockStockMovements, mockWasteItems } from './reports-data.js';
+import { defaultFinanceSettings } from './finance-data.js';
+import { defaultReportSettings } from './reports-data.js';
 import { applyReportFilters, resolveDateRange } from './report-filters.js';
 import { generateBreakEvenReport, generateCustomerReport, generateEventsReport, generateFinanceReport, generateInventoryReport, generateProfitReport, generateSalesReport, generateSupplierReport } from './report-calculations.js';
 import { generateExecutiveSummary } from './executive-summary.js';
@@ -39,21 +35,21 @@ export function loadReportSourceData(filters = {}) {
   const sales = loadSales();
   const data = {
     sales,
-    orders: applyReportFilters(loadArray(KEYS.orders, mockOrders), filters, { dateField: 'createdAt' }),
-    events: applyReportFilters(loadArray(KEYS.events, mockEvents), filters, { dateField: 'eventDate' }),
-    income: applyReportFilters(loadArray(KEYS.income, mockIncomeTransactions), filters),
-    expenses: applyReportFilters(loadArray(KEYS.expenses, mockExpenseTransactions), filters),
+    orders: applyReportFilters(loadArray(KEYS.orders, []), filters, { dateField: 'createdAt' }),
+    events: applyReportFilters(loadArray(KEYS.events, []), filters, { dateField: 'eventDate' }),
+    income: applyReportFilters(loadArray(KEYS.income, []), filters),
+    expenses: applyReportFilters(loadArray(KEYS.expenses, []), filters),
     costTemplates: loadArray(KEYS.costTemplates, []),
     costHistory: loadArray(KEYS.costHistory, []),
-    inventory: loadArray(KEYS.inventory, mockInventoryItems),
-    stockMovements: applyReportFilters(loadArray(KEYS.stockMovements, mockStockMovements), filters),
-    waste: applyReportFilters(loadArray(KEYS.waste, mockWasteItems), filters),
-    suppliers: loadArray(KEYS.suppliers, mockSuppliers),
-    purchaseOrders: applyReportFilters(loadArray(KEYS.purchaseOrders, mockPurchaseOrders), filters, { dateField: 'orderDate' }),
+    inventory: loadArray(KEYS.inventory, []),
+    stockMovements: applyReportFilters(loadArray(KEYS.stockMovements, []), filters),
+    waste: applyReportFilters(loadArray(KEYS.waste, []), filters),
+    suppliers: loadArray(KEYS.suppliers, []),
+    purchaseOrders: applyReportFilters(loadArray(KEYS.purchaseOrders, []), filters, { dateField: 'orderDate' }),
     priceHistory: loadArray(KEYS.priceHistory, loadArray(KEYS.priceHistoryLegacy, [])),
-    customers: loadArray(KEYS.customers, mockCustomers),
-    importantDates: loadArray(KEYS.importantDates, mockImportantDates),
-    followUps: loadArray(KEYS.followUps, mockFollowUps),
+    customers: loadArray(KEYS.customers, []),
+    importantDates: loadArray(KEYS.importantDates, []),
+    followUps: loadArray(KEYS.followUps, []),
     financeSettings: loadObject(KEYS.financeSettings, defaultFinanceSettings),
     inventorySettings: loadObject(KEYS.inventorySettings, {}),
     eventQuotations: loadArray(KEYS.eventQuotations, []),
@@ -85,7 +81,7 @@ export function generateAllReports(filters = {}) {
 }
 
 export function syncReportsDashboard(reports) {
-  const dashboard = loadState(mockData);
+  const dashboard = loadState(buildEmptyDashboardState());
   if (!dashboard) return;
   dashboard.finance = {
     ...(dashboard.finance || {}),
@@ -120,7 +116,7 @@ export function syncReportsDashboard(reports) {
 }
 
 export function loadReportSettings() {
-  return loadObject(KEYS.settings, mockReportSettings);
+  return loadObject(KEYS.settings, defaultReportSettings);
 }
 
 export function saveReportSettings(settings) {
@@ -163,6 +159,21 @@ function loadObject(key, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function buildEmptyDashboardState() {
+  return {
+    kpis: [],
+    breakEven: { currentSales: 0, targetSales: 0, fixedCosts: 0, grossMarginRate: 0 },
+    salesChart: { week: [0, 0, 0, 0, 0, 0, 0], month: [0, 0, 0, 0, 0] },
+    schedule: [],
+    orderStatus: [],
+    stockAlerts: [],
+    events: [],
+    finance: { revenue: 0, expenses: 0, grossProfit: 0, netProfit: 0, receivable: 0, payable: 0, cashBalance: 0 },
+    notifications: [],
+    userAdds: []
+  };
 }
 
 function buildSourceMeta() {

@@ -1,6 +1,6 @@
 import { calendarStatuses, calendarTabs, eventTypes, priorities, sourceTypes } from './calendar-data.js';
-import { filterCalendarEvents, getCalendarAlerts, getCalendarKpis, getMonthMatrix, getQuickFilteredEvents, getTodayEvents, getWeekEvents, loadCalendarEvents, loadCalendarSettings, rescheduleCalendarEvent, saveCalendarSettings, todayKey, updateCalendarEventStatus } from './calendar-service.js?v=20260719a';
-import { syncAllCalendarEvents } from './calendar-sync.js?v=20260719a';
+import { filterCalendarEvents, getCalendarAlerts, getCalendarKpis, getMonthMatrix, getQuickFilteredEvents, getTodayEvents, getWeekEvents, loadCalendarEvents, loadCalendarSettings, rescheduleCalendarEvent, saveCalendarSettings, todayKey, updateCalendarEventStatus } from './calendar-service.js?v=20260719b';
+import { syncAllCalendarEvents } from './calendar-sync.js?v=20260719b';
 import { createManualTask, deleteManualTask, loadManualTasks } from './manual-tasks.js';
 import { dismissReminder, generateRemindersFromCalendarEvents, getDueReminders, loadReminders, markReminderDone, snoozeReminder } from './reminders.js';
 import { completeWorkQueueItem, getDailyWorkQueue, saveQueueNote } from './work-queue.js';
@@ -66,7 +66,7 @@ function renderCalendar() {
 
 function renderToday() {
   const events = filterCalendarEvents({ ...state.filters, date: state.date }, state.events);
-  const kpis = getCalendarKpis(state.events);
+  const kpis = getCalendarKpis(state.events, state.date);
   const alerts = getCalendarAlerts(state.events);
   return `
     <section class="calendar-kpis">

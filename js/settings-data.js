@@ -112,9 +112,7 @@ export const defaultPermissionSettings = {
 };
 
 export const defaultUsers = [
-  { id: 'user-owner', displayName: 'บุศรินทร์', username: 'owner', role: 'owner', pinCode: '1234', status: 'active', allowedModules: ['all'], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'user-cashier', displayName: 'แคชเชียร์หน้าร้าน', username: 'cashier', role: 'cashier', pinCode: '1111', status: 'active', allowedModules: ['dashboard', 'pos', 'customers'], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'user-florist', displayName: 'ทีมจัดดอกไม้', username: 'florist', role: 'florist', pinCode: '2222', status: 'active', allowedModules: ['orders', 'events', 'inventory'], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  { id: 'user-owner', displayName: 'บุศรินทร์', username: 'owner', role: 'owner', pinCode: '1234', status: 'active', allowedModules: ['all'], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
 ];
 
 export const defaultNotificationSettings = {

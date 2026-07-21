@@ -14,7 +14,7 @@ import { mockPriceHistory, mockPurchaseOrders, mockSupplierPayables, mockSupplie
 import { ALL_STORAGE_KEYS, STORAGE_KEYS, hasStorage, readStorage, storageSnapshot, writeStorage } from './storage-registry.js';
 
 const nowIso = () => new Date().toISOString();
-const PRODUCTION_EMPTY_VERSION = 5;
+const PRODUCTION_EMPTY_VERSION = 6;
 
 export function buildDemoSeed() {
   const sales = buildSales();
@@ -88,25 +88,7 @@ export function buildDemoSeed() {
 }
 
 export function buildProductionSeed() {
-  const zeroDashboard = {
-    kpis: [
-      { id: 'sales', label: 'ยอดขายวันนี้', value: 0, type: 'money', compare: 'พร้อมเริ่มขาย', trend: 'flat', icon: 'receipt' },
-      { id: 'orders', label: 'ออร์เดอร์วันนี้', value: 0, suffix: 'งาน', compare: 'ยังไม่มีออร์เดอร์', trend: 'flat', icon: 'package-check' },
-      { id: 'profit', label: 'กำไรประมาณการ', value: 0, type: 'money', compare: 'Margin 0%', trend: 'flat', icon: 'trending-up' },
-      { id: 'deliveries', label: 'งานที่ต้องส่งวันนี้', value: 0, suffix: 'งาน', compare: 'ยังไม่มีงานส่ง', trend: 'flat', icon: 'truck' },
-      { id: 'receivable', label: 'ยอดค้างชำระ', value: 0, type: 'money', compare: '0 ออร์เดอร์', trend: 'flat', icon: 'credit-card' },
-      { id: 'waste', label: 'Waste Cost เดือนนี้', value: 0, type: 'money', compare: 'เริ่มต้นใช้งานจริง', trend: 'flat', icon: 'leaf' }
-    ],
-    breakEven: { currentSales: 0, targetSales: 0, fixedCosts: 0, grossMarginRate: 0 },
-    salesChart: { week: [0, 0, 0, 0, 0, 0, 0], month: [0, 0, 0, 0, 0] },
-    schedule: [],
-    orderStatus: [['pending', 0], ['deposit', 0], ['preparing', 0], ['ready', 0], ['delivering', 0], ['completed', 0], ['cancelled', 0]],
-    stockAlerts: [],
-    events: [],
-    finance: { revenue: 0, expenses: 0, grossProfit: 0, netProfit: 0, receivable: 0, payable: 0, cashBalance: 0 },
-    notifications: [],
-    userAdds: []
-  };
+  const zeroDashboard = buildProductionDashboardState();
   const zeroFinanceSettings = {
     ...defaultSystemFinanceSettings,
     openingBalance: 0,
@@ -192,6 +174,28 @@ export function buildProductionSeed() {
   };
 }
 
+export function buildProductionDashboardState() {
+  return {
+    kpis: [
+      { id: 'sales', label: 'ยอดขายวันนี้', value: 0, type: 'money', compare: 'พร้อมเริ่มขาย', trend: 'flat', icon: 'receipt' },
+      { id: 'orders', label: 'ออร์เดอร์วันนี้', value: 0, suffix: 'งาน', compare: 'ยังไม่มีออร์เดอร์', trend: 'flat', icon: 'package-check' },
+      { id: 'profit', label: 'กำไรประมาณการ', value: 0, type: 'money', compare: 'Margin 0%', trend: 'flat', icon: 'trending-up' },
+      { id: 'deliveries', label: 'งานที่ต้องส่งวันนี้', value: 0, suffix: 'งาน', compare: 'ยังไม่มีงานส่ง', trend: 'flat', icon: 'truck' },
+      { id: 'receivable', label: 'ยอดค้างชำระ', value: 0, type: 'money', compare: '0 ออร์เดอร์', trend: 'flat', icon: 'credit-card' },
+      { id: 'waste', label: 'Waste Cost เดือนนี้', value: 0, type: 'money', compare: 'เริ่มต้นใช้งานจริง', trend: 'flat', icon: 'leaf' }
+    ],
+    breakEven: { currentSales: 0, targetSales: 0, fixedCosts: 0, grossMarginRate: 0 },
+    salesChart: { week: [0, 0, 0, 0, 0, 0, 0], month: [0, 0, 0, 0, 0] },
+    schedule: [],
+    orderStatus: [['pending', 0], ['deposit', 0], ['preparing', 0], ['ready', 0], ['delivering', 0], ['completed', 0], ['cancelled', 0]],
+    stockAlerts: [],
+    events: [],
+    finance: { revenue: 0, expenses: 0, grossProfit: 0, netProfit: 0, receivable: 0, payable: 0, cashBalance: 0 },
+    notifications: [],
+    userAdds: []
+  };
+}
+
 export function checkSeedStatus() {
   const seed = buildDemoSeed();
   const seededKeys = Object.keys(seed);
@@ -268,7 +272,7 @@ export function ensureProductionReady() {
 }
 
 function sanitizeLegacySamples() {
-  const demoId = /^(mock-\d+|event-[1-6]|event-mock-\d+|quotation-\d+|inv-mock-\d+|move-mock-\d+|waste-mock-\d+|inc-mock-\d+|exp-mock-\d+|sale-demo-\d+|template-demo-|p-0\d+)/;
+  const demoId = /^(mock-\d+|event-[1-6]|event-mock-\d+|quotation-\d+|inv-mock-\d+|inventory-\d+|move-mock-\d+|waste-mock-\d+|inc-mock-\d+|exp-mock-\d+|sale-demo-\d+|template-demo-|p-0\d+|cal-mock-\d+|reminder-mock-\d+|po-mock-\d+|payable-mock-\d+|price-mock-\d+|payment-demo-\d+|CUS-\d+)/;
   const demoEventNames = new Set(['Wedding Garden Setup', 'Grand Opening Floral', 'Hotel Lobby Refresh', 'Engagement Dinner', 'Wedding Garden Floral Setup', 'Grand Opening Rose Cafe', 'Corporate Meeting Floral Stage', 'Graduation Floral Booth', 'Memorial Ceremony White Floral']);
   [
     STORAGE_KEYS.sales,
@@ -286,7 +290,19 @@ function sanitizeLegacySamples() {
     STORAGE_KEYS.incomeTransactions,
     STORAGE_KEYS.expenseTransactions,
     STORAGE_KEYS.calendarEvents,
-    STORAGE_KEYS.costTemplates
+    STORAGE_KEYS.manualTasks,
+    STORAGE_KEYS.reminders,
+    STORAGE_KEYS.costTemplates,
+    STORAGE_KEYS.purchaseOrders,
+    STORAGE_KEYS.priceHistory,
+    STORAGE_KEYS.supplierPriceHistory,
+    STORAGE_KEYS.supplierPayables,
+    STORAGE_KEYS.customers,
+    STORAGE_KEYS.customerImportantDates,
+    STORAGE_KEYS.customerFollowups,
+    STORAGE_KEYS.customerPurchaseHistory,
+    STORAGE_KEYS.qrCodes,
+    STORAGE_KEYS.paymentQrPlaceholders
   ].forEach(key => {
     const rows = readStorage(key, null);
     if (!Array.isArray(rows)) return;

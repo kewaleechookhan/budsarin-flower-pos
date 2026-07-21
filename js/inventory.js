@@ -1,11 +1,11 @@
 import { calculateItemValue, calculateReorderQuantity } from './inventory-calculations.js';
 import { inventoryCategories, movementTypes, qualityStatuses, referenceTypes, wasteReasons } from './inventory-data.js';
 import { adjustStock, deductStock, deleteInventoryItem, getInventoryAlerts, getInventoryKpis, loadInventoryItems, loadInventorySettings, receiveStock, recordWaste, saveInventoryItem, saveInventorySettings } from './inventory-service.js?v=20260717a';
-import { loadStockMovements } from './stock-movements.js?v=20260713b';
-import { renderIcon } from './icons.js?v=20260713b';
+import { loadStockMovements } from './stock-movements.js?v=20260719b';
+import { renderIcon } from './icons.js?v=20260719b';
 import { loadSuppliers } from './suppliers-service.js';
 import { currency, number, showToast, thaiDate } from './utils.js';
-import { loadWasteItems } from './waste-management.js?v=20260713b';
+import { loadWasteItems } from './waste-management.js?v=20260719b';
 
 const state = { tab: 'overview', query: '', category: 'all', quality: 'all', supplier: 'all' };
 const tabs = [
@@ -172,11 +172,11 @@ function bindInventoryEvents() {
   document.getElementById('inventoryView').addEventListener('submit', event => {
     event.preventDefault();
     try {
-      if (event.target.id === 'inventoryItemForm') { saveInventoryItem(Object.fromEntries(new FormData(event.target).entries())); event.target.reset(); showToast('บันทึกรายการสต็อกแล้ว'); }
-      if (event.target.id === 'stockInForm') { receiveStock(Object.fromEntries(new FormData(event.target).entries()), event.target.elements.syncExpense.checked); showToast('รับเข้าสินค้าแล้ว'); }
-      if (event.target.id === 'stockOutForm') { deductStock(Object.fromEntries(new FormData(event.target).entries())); showToast('ตัดสต็อกแล้ว'); }
-      if (event.target.id === 'wasteForm') { recordWaste(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Waste แล้ว'); }
-      if (event.target.id === 'inventorySettingsForm') { saveInventorySettings(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Inventory Settings แล้ว'); }
+      if (event.target.matches('#inventoryItemForm')) { saveInventoryItem(Object.fromEntries(new FormData(event.target).entries())); event.target.reset(); showToast('บันทึกรายการสต็อกแล้ว'); }
+      if (event.target.matches('#stockInForm')) { receiveStock(Object.fromEntries(new FormData(event.target).entries()), event.target.elements.syncExpense.checked); showToast('รับเข้าสินค้าแล้ว'); }
+      if (event.target.matches('#stockOutForm')) { deductStock(Object.fromEntries(new FormData(event.target).entries())); showToast('ตัดสต็อกแล้ว'); }
+      if (event.target.matches('#wasteForm')) { recordWaste(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Waste แล้ว'); }
+      if (event.target.matches('#inventorySettingsForm')) { saveInventorySettings(Object.fromEntries(new FormData(event.target).entries())); showToast('บันทึก Inventory Settings แล้ว'); }
       renderInventory();
     } catch (error) {
       showToast(error.message);

@@ -1,6 +1,6 @@
 import { STORAGE_KEYS, readStorage, writeStorage } from './storage-registry.js';
 import { logAudit } from './audit-log.js';
-import { apiSendOfflineQueue } from './api-client.js?v=20260713g';
+import { apiSendOfflineQueue } from './api-client.js?v=20260719b';
 
 const isOnline = () => navigator.onLine !== false;
 

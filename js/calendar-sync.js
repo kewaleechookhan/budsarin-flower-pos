@@ -19,10 +19,12 @@ export function syncCalendarFromEvents() {
     if (!date) return [];
     const name = event.projectName || event.eventName || event.name || 'งานจัดสถานที่';
     const location = event.venueName || event.location || event.place || '';
-    return [
+    const rows = [
       toEvent(event, 'event_project', event.id, 'setup', `Setup ${name}`, date, event.setupTime || event.startTime || '09:00', location),
+      toEvent(event, 'event_project', event.id, 'event_day', name, event.eventDate || date, event.eventStartTime || event.startTime || '09:00', location),
       toEvent(event, 'event_project', event.id, 'teardown', `Teardown ${name}`, event.teardownDate || date, event.teardownTime || '18:00', location)
     ];
+    return rows.filter((row, index, all) => all.findIndex(item => item.eventType === row.eventType && item.startDate === row.startDate) === index);
   });
 }
 

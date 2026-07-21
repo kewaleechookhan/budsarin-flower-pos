@@ -31,6 +31,7 @@ export const eventTypes = {
   delivery: 'จัดส่ง',
   preparation: 'เตรียมงาน',
   setup: 'Setup',
+  event_day: 'วันจัดงาน',
   teardown: 'Teardown',
   meeting: 'นัดหมาย',
   payment_due: 'ครบกำหนดชำระ',

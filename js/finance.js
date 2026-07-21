@@ -22,6 +22,12 @@ export function initFinance() {
   state.snapshot = syncAllFinanceSources();
   renderFinance();
   bindFinanceEvents();
+  ['finance:updated', 'orders:updated', 'products:updated'].forEach(name => {
+    window.addEventListener(name, () => {
+      state.snapshot = syncAllFinanceSources();
+      renderFinance();
+    });
+  });
 }
 
 function renderFinanceShell() {
@@ -43,7 +49,7 @@ function renderFinanceShell() {
 }
 
 function renderFinance() {
-  state.snapshot = getFinanceSnapshot();
+  state.snapshot = syncAllFinanceSources();
   document.querySelectorAll('[data-finance-tab]').forEach(btn => btn.classList.toggle('active', btn.dataset.financeTab === state.tab));
   const content = document.getElementById('financeContent');
   const views = {

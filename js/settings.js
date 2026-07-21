@@ -2,15 +2,15 @@ import { settingsTabs, roles, permissions, systemPhases, APP_NAME, SYSTEM_VERSIO
 import { addUser, initializeSettingsDefaults, loadBrandSettings, loadModuleSettings, loadStoreProfile, loadSystemFinanceSettings, loadSystemSettings, loadUsers, saveBrandSettings, saveModuleSettings, saveStoreProfile, saveSystemFinanceSettings, updateUser } from './settings-service.js';
 import { getRolePermissions, loadPermissionSettings, savePermissionSettings } from './permissions.js';
 import { loadNotificationSettings, updateNotificationSetting } from './notifications-settings.js';
-import { clearAllLocalData, createBackupMetadata, downloadBackupJSON, exportAllData, importBackupJSON, loadBackupHistory, resetMockData, restoreBackup, validateBackupFile } from './backup-restore.js';
+import { clearAllLocalData, createBackupMetadata, downloadBackupJSON, exportAllData, importBackupJSON, loadBackupHistory, restoreBackup, validateBackupFile } from './backup-restore.js';
 import { exportHealthReport, repairMinorIssues, runDataHealthCheck } from './data-health.js';
-import { backupBeforeReset, checkSeedStatus, clearAllData, resetDemoData, resetToProductionData, restoreFromBackup, seedDemoData } from './demo-data.js';
+import { backupBeforeReset, checkSeedStatus, clearAllData, resetToProductionData, restoreFromBackup } from './demo-data.js';
 import { getCurrentDeviceSession, loadDeviceSessions, removeDeviceSession } from './device-sessions.js';
 import { renderIcon } from './icons.js';
 import { filterAuditLogs, loadAuditLogs, logAudit } from './audit-log.js';
 import { databaseTables, loadApiContracts, loadBackendSettings, saveBackendSettings, simulateBackendHealthCheck } from './api-contracts.js';
 import { apiHealth } from './api-client.js';
-import { getConflictSummary, loadSyncConflicts, resolveSyncConflict, seedDemoConflict } from './conflict-resolver.js';
+import { getConflictSummary, loadSyncConflicts, resolveSyncConflict } from './conflict-resolver.js';
 import { copyMessageToClipboard, defaultLineTemplates, getNotificationLogsForSettings, loadLineSettings, loadLineTemplates, previewLineMessage, saveLineSettings, saveLineTemplates, sendLineMessagePlaceholder } from './line-integration.js';
 import { getSyncStatus } from './offline-queue.js';
 import { detectPrinterCapabilityPlaceholder, loadPrinterSettings, savePrinterSettings } from './receipt-printer.js';
@@ -208,23 +208,20 @@ function renderBackup() {
       <div class="settings-metrics">${Object.entries(metadata).map(([key, value]) => `<div><span>${key}</span><strong>${number(value)}</strong></div>`).join('')}</div>
       <p class="settings-warning">Restore หรือ Clear Data จะมี confirm ก่อนเสมอ และ invalid JSON จะไม่ทับข้อมูลเดิม</p>
     </article>
-    <article class="panel demo-data-card"><div class="panel-heading"><div><p class="eyebrow">Phase 13 Demo Data</p><h3>Seed / Reset ข้อมูลตัวอย่าง</h3></div></div>
+    <article class="panel demo-data-card"><div class="panel-heading"><div><p class="eyebrow">Production Data</p><h3>เตรียมข้อมูลใช้งานจริง</h3></div></div>
       <div class="settings-metrics">
-        <div><span>Seed Keys</span><strong>${number(seedStatus.present)} / ${number(seedStatus.total)}</strong></div>
-        <div><span>Last Seed</span><strong>${seedStatus.lastSeededAt ? seedStatus.lastSeededAt.slice(0, 10) : '-'}</strong></div>
+        <div><span>Data Keys</span><strong>${number(seedStatus.present)} / ${number(seedStatus.total)}</strong></div>
+        <div><span>Last Reset</span><strong>${seedStatus.lastResetAt ? seedStatus.lastResetAt.slice(0, 10) : '-'}</strong></div>
       </div>
       <div class="backup-actions">
-        <button class="primary-button" id="seedDemoBtn" type="button">${renderIcon('plus')}เติมข้อมูลตัวอย่าง</button>
         <button class="soft-button" id="backupBeforeResetBtn" type="button">${renderIcon('download')}สำรองก่อนรีเซ็ต</button>
         <button class="danger-button" id="resetProductionBtn" type="button">เริ่มใช้งานจริง: ล้างตัวอย่างให้เป็น 0</button>
-        <button class="danger-button" id="resetDemoBtn" type="button">รีเซ็ตข้อมูลตัวอย่าง</button>
         <button class="danger-button" id="clearAllDataBtn" type="button">ล้างข้อมูลทั้งหมด</button>
         <button class="soft-button" id="restoreResetBackupBtn" type="button">กู้คืน backup ล่าสุด</button>
       </div>
-      <p class="settings-warning">เติมข้อมูลตัวอย่างจะไม่ทับข้อมูลเดิม ส่วน Reset/Clear ต้องยืนยันก่อนทุกครั้ง</p>
+      <p class="settings-warning">ทุกคำสั่งล้างข้อมูลจะสำรองข้อมูลเดิมก่อน และต้องยืนยันก่อนทำงานจริง</p>
     </article>
     <article class="panel danger-zone"><div class="panel-heading"><div><p class="eyebrow">Danger Zone</p><h3>ล้างข้อมูล</h3></div></div>
-      <button class="danger-button" id="resetMockBtn" type="button">Reset mock data</button>
       <button class="danger-button" id="clearDataBtn" type="button">Clear local data</button>
     </article>
     <article class="panel"><div class="panel-heading"><div><p class="eyebrow">History</p><h3>Backup History</h3></div></div>
@@ -323,7 +320,7 @@ function renderBackend() {
       <div class="settings-metrics"><div><span>Health</span><strong>${backend.lastHealthStatus}</strong></div><div><span>Last Check</span><strong>${backend.lastHealthCheckAt ? backend.lastHealthCheckAt.slice(0, 16) : '-'}</strong></div></div>
     </form>
     <article class="panel">
-      <div class="panel-heading"><div><p class="eyebrow">Sync Conflicts</p><h3>Conflict Resolver</h3></div><button class="soft-button" id="seedConflictBtn" type="button">สร้างตัวอย่าง Conflict</button></div>
+      <div class="panel-heading"><div><p class="eyebrow">Sync Conflicts</p><h3>Conflict Resolver</h3></div></div>
       <div class="settings-metrics"><div><span>Open</span><strong>${number(summary.open)}</strong></div><div><span>Resolved</span><strong>${number(summary.resolved)}</strong></div><div><span>Total</span><strong>${number(summary.total)}</strong></div></div>
       <div class="settings-list">${conflicts.slice(0, 8).map(item => `<div class="settings-row conflict-row"><div><strong>${item.entityType} • ${item.entityId}</strong><span>${item.reason} • ${item.status}</span><small>local ${escapeHtml(JSON.stringify(item.localPayload).slice(0, 90))}</small><small>remote ${escapeHtml(JSON.stringify(item.remotePayload).slice(0, 90))}</small></div>${item.status === 'open' ? `<button class="primary-button" data-resolve-conflict="${item.id}" data-resolution="keep_local" type="button">Keep local</button><button class="soft-button" data-resolve-conflict="${item.id}" data-resolution="keep_remote" type="button">Use remote</button><button class="soft-button" data-resolve-conflict="${item.id}" data-resolution="merge_manual" type="button">Merge</button>` : `<span class="badge success">${item.resolution}</span>`}</div>`).join('') || '<div class="empty-state">ยังไม่มี sync conflict</div>'}</div>
     </article>
@@ -362,11 +359,8 @@ function bindSettingsEvents() {
     if (event.target.closest('#backupDownloadBtn')) { downloadBackupJSON(); showToast('Export Backup JSON แล้ว'); renderSettings(); }
     if (event.target.closest('#restoreBackupBtn')) confirmAction('Restore Backup จะทับข้อมูล LocalStorage ปัจจุบัน', () => { restoreBackup(state.pendingBackup); state.pendingBackup = null; showToast('Restore Backup สำเร็จ'); renderSettings(); });
     if (event.target.closest('#clearDataBtn')) confirmAction('Clear local data จะลบข้อมูลทั้งหมดในระบบนี้', () => { clearAllLocalData(); initializeSettingsDefaults(); showToast('ล้างข้อมูล local แล้ว'); renderSettings(); });
-    if (event.target.closest('#resetMockBtn')) confirmAction('Reset mock data จะล้างข้อมูล local และคืนค่า default', () => { resetMockData(); initializeSettingsDefaults(); showToast('Reset mock data แล้ว'); renderSettings(); });
-    if (event.target.closest('#seedDemoBtn')) { const result = seedDemoData(); initializeSettingsDefaults(); showToast(`เติมข้อมูลตัวอย่าง ${result.seeded} key`); renderSettings(); }
     if (event.target.closest('#backupBeforeResetBtn')) { backupBeforeReset('manual-settings'); showToast('สำรองข้อมูลก่อนรีเซ็ตแล้ว'); renderSettings(); }
     if (event.target.closest('#resetProductionBtn')) confirmAction('เริ่มใช้งานจริงจะสำรองข้อมูลเดิมก่อน แล้วล้างรายการขาย สินค้า ลูกค้า ออเดอร์ สต็อก รายรับรายจ่าย และข้อมูลตัวอย่างให้เป็น 0', () => { const result = resetToProductionData(); initializeSettingsDefaults(); showToast(`พร้อมใช้งานจริงแล้ว ล้าง ${result.reset} key`); renderSettings(); });
-    if (event.target.closest('#resetDemoBtn')) confirmAction('รีเซ็ตข้อมูลตัวอย่างจะสำรองข้อมูลเดิมก่อน แล้วเขียน demo data ใหม่ทั้งหมด', () => { const result = resetDemoData(); initializeSettingsDefaults(); showToast(`รีเซ็ต demo data แล้ว ${result.seeded} key`); renderSettings(); });
     if (event.target.closest('#clearAllDataBtn')) confirmAction('ล้างข้อมูลทั้งหมดจะลบ LocalStorage ทุก key ของระบบนี้ แต่เก็บ backup reset ล่าสุดไว้', () => { backupBeforeReset('clear-all-data'); clearAllData(); initializeSettingsDefaults(); showToast('ล้างข้อมูลทั้งหมดแล้ว'); renderSettings(); });
     if (event.target.closest('#restoreResetBackupBtn')) { const backup = restoreFromBackup(); initializeSettingsDefaults(); showToast(backup ? 'กู้คืน backup ล่าสุดแล้ว' : 'ยังไม่มี backup สำหรับกู้คืน'); renderSettings(); }
     if (event.target.closest('#runHealthBtn') || event.target.closest('#settingsHealthQuickBtn')) { state.health = runDataHealthCheck(); state.tab = 'health'; renderSettings(); showToast('ตรวจสุขภาพข้อมูลแล้ว'); }
@@ -395,7 +389,6 @@ function bindSettingsEvents() {
         renderSettings();
       });
     }
-    if (event.target.closest('#seedConflictBtn')) { seedDemoConflict(); showToast('สร้าง sync conflict ตัวอย่างแล้ว'); renderSettings(); }
     const resolveConflictId = event.target.closest('[data-resolve-conflict]')?.dataset.resolveConflict;
     const resolution = event.target.closest('[data-resolve-conflict]')?.dataset.resolution;
     if (resolveConflictId) { resolveSyncConflict(resolveConflictId, resolution); showToast(`Resolve conflict: ${resolution}`); renderSettings(); }

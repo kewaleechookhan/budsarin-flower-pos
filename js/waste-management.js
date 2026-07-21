@@ -1,5 +1,4 @@
-import { mockWasteItems } from './inventory-data.js';
-import { createStockMovement } from './stock-movements.js?v=20260713b';
+import { createStockMovement } from './stock-movements.js?v=20260719b';
 import { STORAGE_KEYS, readStorage, writeStorage } from './storage-registry.js';
 
 const KEY = STORAGE_KEYS.wasteItems;
@@ -7,9 +6,8 @@ const KEY = STORAGE_KEYS.wasteItems;
 export function loadWasteItems() {
   const saved = readStorage(KEY, null);
   if (Array.isArray(saved)) return saved;
-  const seed = structuredClone(mockWasteItems);
-  writeStorage(KEY, seed);
-  return seed;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveWasteItems = rows => writeStorage(KEY, rows);

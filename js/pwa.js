@@ -1,5 +1,5 @@
 import { getCurrentDeviceSession } from './device-sessions.js';
-import { getSyncStatus, processOfflineQueue } from './offline-queue.js?v=20260713g';
+import { getSyncStatus, processOfflineQueue } from './offline-queue.js?v=20260719b';
 import { openPaymentQRModal } from './qr-payment.js';
 import { generateEntityQRCode, showQRPreview } from './qr-service.js';
 import { openScanner } from './scanner.js';

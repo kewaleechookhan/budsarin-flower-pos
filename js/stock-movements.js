@@ -1,4 +1,3 @@
-import { mockStockMovements } from './inventory-data.js';
 import { STORAGE_KEYS, readStorage, writeStorage } from './storage-registry.js';
 
 const KEY = STORAGE_KEYS.stockMovements;
@@ -6,9 +5,8 @@ const KEY = STORAGE_KEYS.stockMovements;
 export function loadStockMovements() {
   const saved = readStorage(KEY, null);
   if (Array.isArray(saved)) return saved;
-  const seed = structuredClone(mockStockMovements);
-  writeStorage(KEY, seed);
-  return seed;
+  writeStorage(KEY, []);
+  return [];
 }
 
 export const saveStockMovements = movements => writeStorage(KEY, movements);

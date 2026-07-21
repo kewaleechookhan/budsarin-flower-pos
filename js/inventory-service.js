@@ -1,17 +1,17 @@
 import { addExpense } from './finance-service.js';
 import { calculateAverageCost, calculateItemValue, calculateStockTurnover, calculateStockValue, calculateWasteCost, calculateWasteRate, detectLowStockItems, detectUseSoonItems, determineQualityStatus } from './inventory-calculations.js';
 import { defaultInventorySettings, mockInventoryItems } from './inventory-data.js';
-import { createStockMovement, getStockInCost, loadStockMovements } from './stock-movements.js?v=20260713b';
+import { createStockMovement, getStockInCost, loadStockMovements } from './stock-movements.js?v=20260719b';
 import { loadState, saveState } from './storage.js';
 import { STORAGE_KEYS, readStorage, writeStorage } from './storage-registry.js';
-import { createWasteRecord, loadWasteItems } from './waste-management.js?v=20260713b';
+import { createWasteRecord, loadWasteItems } from './waste-management.js?v=20260719b';
 
 const ITEM_KEY = STORAGE_KEYS.inventoryItems;
 const SETTINGS_KEY = STORAGE_KEYS.inventorySettings;
 
 export function loadInventoryItems() {
   const saved = readStorage(ITEM_KEY, null);
-  const rows = Array.isArray(saved) ? saved : mockInventoryItems;
+  const rows = Array.isArray(saved) ? saved : [];
   if (!Array.isArray(saved)) writeStorage(ITEM_KEY, rows);
   return rows.map(item => ({ ...item, qualityStatus: determineQualityStatus(item, loadInventorySettings()) }));
 }

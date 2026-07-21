@@ -53,8 +53,8 @@ export function filterCalendarEvents(filters = {}, events = loadCalendarEvents()
   });
 }
 
-export function getTodayEvents(events = loadCalendarEvents()) {
-  return events.filter(event => event.startDate === todayKey());
+export function getTodayEvents(events = loadCalendarEvents(), date = todayKey()) {
+  return events.filter(event => event.startDate === date);
 }
 
 export function getWeekEvents(anchor = new Date(), events = loadCalendarEvents()) {
@@ -72,8 +72,8 @@ export function getMonthMatrix(anchor = new Date(), events = loadCalendarEvents(
   });
 }
 
-export function getCalendarKpis(events = loadCalendarEvents()) {
-  const today = getTodayEvents(events);
+export function getCalendarKpis(events = loadCalendarEvents(), date = todayKey()) {
+  const today = getTodayEvents(events, date);
   return {
     todayCount: today.length,
     urgentCount: events.filter(item => item.priority === 'urgent' && item.status !== 'done').length,
